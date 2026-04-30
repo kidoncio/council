@@ -2,7 +2,7 @@
 
 # Council
 
-**A council of 5 AI advisors for [Claude Code](https://claude.ai/code). Plan with adversarial validation. Ship with confidence.**
+**Five AI advisors for [Claude Code](https://claude.ai/code). Catch the problems you didn't think to look for — before you build.**
 
 [![npm version](https://img.shields.io/npm/v/@kidoncio/council?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/@kidoncio/council)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
@@ -16,7 +16,7 @@ npm install -g @kidoncio/council
 
 <br>
 
-_"Don't ship a plan that only one perspective reviewed."_
+_"The argument you had before building is the one you don't have in production."_
 
 <br>
 
@@ -28,13 +28,13 @@ _"Don't ship a plan that only one perspective reviewed."_
 
 ## Why Council
 
-Claude Code is powerful. But when you plan alone, you have one perspective.
+You've shipped a feature that looked solid in the plan — and then watched it fall apart for a reason nobody thought to check.
 
-You optimize for what you already know how to build. You don't see the attack surface your security engineer would catch. You don't hear the PM question whether you're solving the right problem. You don't feel the 3am incident that makes your architecture choice look naive in hindsight.
+The auth flow that seemed fine until a security engineer pointed out it leaks session tokens. The architecture that worked great until someone asked what happens at 10x load. The product decision that made sense until a user couldn't figure out what the feature was for.
 
-Council gives you five permanent advisors — each with a distinct worldview and a mandate to disagree — embedded directly in Claude Code as slash commands.
+Council gives you five permanent advisors — each with a distinct worldview and a mandate to disagree — embedded directly in Claude Code as slash commands. They review your plan before you build it: independently, then against each other, then together.
 
-They don't agree easily. **That's the point.**
+The problems they surface are the ones that cost the most to fix after the fact. **That's the point.**
 
 ---
 
@@ -60,12 +60,11 @@ Each advisor has a philosophy, a blind spot, and a debate style. They produce in
 npm install -g @kidoncio/council
 ```
 
-`postinstall` copies the commands to `~/.claude/commands/council/` automatically.
-
-Confirm it worked:
+`postinstall` copies the commands to `~/.claude/commands/council/` automatically. Confirm it worked:
 
 ```bash
 council list
+# → Lists all installed council commands
 ```
 
 Then open Claude Code and run your first plan:
@@ -76,29 +75,11 @@ Then open Claude Code and run your first plan:
 
 ---
 
-## The Workflow
-
-The commands are designed to run in sequence — but each one is independently useful.
-
-```
-/council:discuss    ← optional: articulate goals, constraints, open questions
-        ↓
-/council:research   ← optional: deep research before committing to a plan
-        ↓
-/council:plan       ← research → UX mapping → task plan → council review
-        ↓
-/council:execute    ← implement task by task, track progress in ROADMAP.md
-```
-
-`/council:plan` detects and reuses an existing `RESEARCH.md` automatically — no duplicate work.
-
-Use the single-advisor commands any time for a focused opinion without convening the full council.
-
----
-
 ## Commands
 
 ### Planning
+
+The commands are designed to run in sequence — but each one is independently useful. You end up with a plan your whole team can poke holes in, backed by research and a full adversarial review.
 
 | Command             | What it does                                                                                                                                        |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -107,18 +88,20 @@ Use the single-advisor commands any time for a focused opinion without convening
 | `/council:plan`     | 4-phase structured planning: research → UX mapping → task plan → adversarial council review. Produces a complete file set in `.council/[feature]/`. |
 | `/council:execute`  | Reads `PLAN.md`, implements tasks in dependency order, and updates `ROADMAP.md` after each one. Pauses for input when blocked or ambiguous.         |
 
+`/council:plan` detects and reuses an existing `RESEARCH.md` automatically — no duplicate work.
+
 ### Council Reviews
 
 Convene one advisor or all five — your choice.
 
-| Command                       | Advisor   | What they focus on                                          |
-| ----------------------------- | --------- | ----------------------------------------------------------- |
-| `/council:review`             | All five  | Independent reports → debate → unified verdict              |
-| `/council:senior-engineer`    | TURING    | Operational complexity, blast radius, debuggability         |
-| `/council:security-engineer`  | TORVALDS  | Attack surface, data exposure, specific CVE classes         |
-| `/council:product-strategy`   | LOVELACE  | User outcomes, delivery speed, the right problem            |
-| `/council:architecture`       | DIJKSTRA  | Consistency guarantees, failure modes, migration paths      |
-| `/council:code-quality`       | HAMMURABI | Maintainability, cyclomatic complexity, 6-month inheritance |
+| Command                      | Advisor   | What they focus on                                          |
+| ---------------------------- | --------- | ----------------------------------------------------------- |
+| `/council:review`            | All five  | Independent reports → debate → unified verdict              |
+| `/council:senior-engineer`   | TURING    | Operational complexity, blast radius, debuggability         |
+| `/council:security-engineer` | TORVALDS  | Attack surface, data exposure, specific CVE classes         |
+| `/council:product-strategy`  | LOVELACE  | User outcomes, delivery speed, the right problem            |
+| `/council:architecture`      | DIJKSTRA  | Consistency guarantees, failure modes, migration paths      |
+| `/council:code-quality`      | HAMMURABI | Maintainability, cyclomatic complexity, 6-month inheritance |
 
 ---
 
@@ -132,6 +115,8 @@ Each advisor reviews the plan separately, with no knowledge of the others' findi
 
 Phase 2 — Debate
 Advisors challenge each other's conclusions directly.
+TORVALDS flags an auth bypass; LOVELACE argues it's out of scope for v1;
+the verdict names the trade-off and forces you to decide.
 Consensus achieved too easily is a failure of the process.
 
 Phase 3 — Unified verdict
@@ -144,7 +129,7 @@ The single-advisor commands skip the debate and give you one sharp opinion fast.
 
 ## Output Files
 
-Plans are written to `.council/[feature-slug]/` inside your project. Everything is plaintext and lives in your repo — no external state, no accounts, no dashboard.
+Plans are written to `.council/[feature-slug]/` inside your project. Everything is plaintext and lives in your repo — version it, diff it, hand it to a teammate. No external state, no accounts, no dashboard.
 
 ```
 .council/
