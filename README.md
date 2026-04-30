@@ -91,7 +91,7 @@ The commands are designed to run in sequence — but each one is independently u
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/council:discuss`  | Think through a feature before committing to a plan. Surfaces goals, constraints, and risks into `CONTEXT.md`. Handoff to `/plan` is automatic.     |
 | `/council:research` | Spawn parallel research agents on a feature or problem. Produces `RESEARCH.md` without committing to a plan. Reused automatically by `/plan`.       |
-| `/council:plan`     | 4-phase structured planning: research → UX mapping → task plan → adversarial council review. Produces a complete file set in `.council/[feature]/`. |
+| `/council:plan`     | 5-phase structured planning: research → technical sketch → UX mapping → task plan → adversarial council review. Produces a complete file set in `.council/[feature]/`. |
 | `/council:execute`  | Reads `PLAN.md`, implements tasks in dependency order, and updates `ROADMAP.md` after each one. Pauses for input when blocked or ambiguous.         |
 
 `/council:plan` detects and reuses an existing `RESEARCH.md` automatically — no duplicate work. If `.council/PROJECT.md` exists, it is injected into every agent's context automatically.
@@ -143,7 +143,8 @@ Plans are written to `.council/[feature-slug]/` inside your project. Everything 
 └── my-feature/
     ├── CONTEXT.md           ← goals and constraints (from /discuss)
     ├── RESEARCH.md          ← synthesized research (from /research or /plan)
-    ├── UX.md                ← personas and user journeys
+    ├── TECHNICAL_SKETCH.md  ← feasibility constraints and chosen direction (from /plan)
+    ├── UX.md                ← personas and user journeys (informed by technical constraints)
     ├── PLAN.md              ← tasks with BDD acceptance criteria
     ├── ROADMAP.md           ← live progress tracker (updated by /execute)
     ├── SUMMARY_OF_COUNCIL.md

@@ -1,12 +1,12 @@
 ---
 name: council:plan
-description: The council collaboratively researches, maps user flows, and creates a development plan for a feature or problem. Produces RESEARCH.md, UX.md, PLAN.md, and ROADMAP.md in .council/[FEATURE_NAME]/, then runs a council review on the final plan.
+description: The council collaboratively researches, sketches technical constraints, maps user flows, and creates a development plan. Produces RESEARCH.md, TECHNICAL_SKETCH.md, UX.md, PLAN.md, and ROADMAP.md in .council/[FEATURE_NAME]/, then runs a council review on the final plan.
 argument-hint: "<feature name or problem description>"
 allowed-tools: [Read, Write, Bash, Glob, Agent, WebSearch, AskUserQuestion]
 ---
 
 <objective>
-Guide the council through a structured 4-phase process to produce a complete, reviewed development plan. The council asks the user targeted questions at each phase before proceeding. No phase is skipped. No plan is created before research and UX are done.
+Guide the council through a structured 5-phase process to produce a complete, reviewed development plan. The council asks the user targeted questions at each phase before proceeding. No phase is skipped. UX mapping happens after technical constraints are known — not before.
 
 The output is a set of files in `.council/[FEATURE_NAME]/` that serve as the authoritative source of truth for implementation.
 </objective>
@@ -54,16 +54,46 @@ Check if `.council/PROJECT.md` exists.
 **Step 1.1 — Check for existing research**
 Check if `[FEATURE_DIR]/RESEARCH.md` exists.
 
-- **If it exists:** Read it and tell the user: "I found existing research for this feature. Skipping Phase 1 and proceeding to UX mapping." Proceed directly to Phase 2.
+- **If it exists:** Read it and tell the user: "I found existing research for this feature. Skipping Phase 1 and proceeding to technical sketch." Proceed directly to Phase 2.
 - **If it doesn't exist:** Run `/council:research [FEATURE_SLUG]`. Only proceed to Phase 2 after it completes and RESEARCH.md exists.
 
 ---
 
-## Phase 2 — UX & User Journey
+## Phase 2 — Technical Sketch
 
-**Goal:** Map how real users experience this feature end-to-end, before any technical decisions are locked.
+**Goal:** Identify what is technically feasible and what constraints exist before any user journey is mapped.
 
-**Step 2.1 — Council interviews the user**
+**Step 2.1 — Check for existing technical sketch**
+Check if `[FEATURE_DIR]/TECHNICAL_SKETCH.md` exists.
+
+- **If it exists:** Read it and tell the user: "I found an existing technical sketch for this feature. Skipping Phase 2." Proceed directly to Phase 3.
+- **If it doesn't exist:** Proceed to Step 2.2.
+
+**Step 2.2 — Technical sketch agent**
+Spawn a single technical sketch agent. It receives: RESEARCH.md, the feature description, and PROJECT.md (if available). It must produce a lean technical sketch — not a full plan, just enough to bound what UX can and cannot promise.
+
+The agent writes to `[FEATURE_DIR]/TECHNICAL_SKETCH.md` with:
+
+- **Viable approaches** — 2-3 technical approaches that could implement this feature, each with a one-line tradeoff
+- **Chosen direction** — the recommended approach and why (informed by the project's stack and constraints from PROJECT.md)
+- **Hard constraints** — things the system cannot do or cannot easily change (e.g., "no real-time infra available", "auth model doesn't support multi-tenancy", "existing schema makes X expensive")
+- **Integration points** — existing systems, APIs, or data models this feature must work with
+- **What this rules out** — UX patterns or user promises that are technically infeasible given the constraints above
+
+**Step 2.3 — Present and validate**
+Show the user the chosen direction and hard constraints. Ask:
+
+> "Does this technical direction make sense? Are there constraints I'm missing, or approaches you'd like to explore instead?"
+
+Incorporate feedback into TECHNICAL_SKETCH.md before proceeding.
+
+---
+
+## Phase 3 — UX & User Journey
+
+**Goal:** Map how real users experience this feature — informed by what the system can actually do.
+
+**Step 3.1 — Council interviews the user**
 A single agent asks the user:
 
 1. Who are the types of users that will interact with this feature? (e.g., pet owner, receptionist, administrator)
@@ -74,12 +104,12 @@ A single agent asks the user:
 
 Wait for user response before proceeding.
 
-**Step 2.2 — UX mapping agent**
-Spawn a single UX agent. It receives: the feature description, research findings from RESEARCH.md, and the user's answers. It must:
+**Step 3.2 — UX mapping agent**
+Spawn a single UX agent. It receives: the feature description, RESEARCH.md, TECHNICAL_SKETCH.md, and the user's answers. It must:
 
 - Create **at least 2 distinct user personas** (different roles, tech savviness, or goals)
 - Map the complete journey for each persona: entry point → steps → success state → error states → exit
-- Identify friction points and edge cases in each journey
+- Respect the hard constraints from TECHNICAL_SKETCH.md — do not map flows that were ruled out
 - Flag where the journey touches other system features (integration points)
 
 The agent writes to `[FEATURE_DIR]/UX.md` with:
@@ -89,7 +119,7 @@ The agent writes to `[FEATURE_DIR]/UX.md` with:
 - Business rules identified (bullet list)
 - Open questions for the product owner
 
-**Step 2.3 — Present and validate**
+**Step 3.3 — Present and validate**
 Show the user the persona journeys. Ask:
 
 > "Do the personas and journeys reflect the reality of your users? Is there any critical flow that wasn't mapped, or any business rule that is wrong?"
@@ -98,14 +128,14 @@ Incorporate feedback into UX.md before proceeding.
 
 ---
 
-## Phase 3 — Plan Creation
+## Phase 4 — Plan Creation
 
-**Goal:** Translate research and UX into a concrete, sequenced implementation plan.
+**Goal:** Translate research, technical constraints, and UX into a concrete, sequenced implementation plan.
 
-**Step 3.1 — Planning agent**
-Spawn a single planning agent. It receives: RESEARCH.md, UX.md, the user's context, and these constraints:
+**Step 4.1 — Planning agent**
+Spawn a single planning agent. It receives: RESEARCH.md, TECHNICAL_SKETCH.md, UX.md, the user's context, and these constraints:
 
-> Create a development plan that a developer can follow without needing further clarification. Each task must be specific enough to estimate. The plan must respect the business rules and edge cases surfaced in UX.md. Prefer sequencing that delivers a working slice end-to-end before adding complexity.
+> Create a development plan that a developer can follow without needing further clarification. Each task must be specific enough to estimate. The plan must respect the hard constraints from TECHNICAL_SKETCH.md and the business rules and edge cases surfaced in UX.md. Prefer sequencing that delivers a working slice end-to-end before adding complexity.
 >
 > **Task discipline:** If you can't specify Files + Action + Verify + Done, the task is too vague.
 
@@ -118,7 +148,7 @@ The agent writes to `[FEATURE_DIR]/PLAN.md` (or PLAN-01.md etc.):
 
 ## Context
 
-[1 paragraph: what we're building, why, and what research/UX informed this plan]
+[1 paragraph: what we're building, why, and what research/technical constraints/UX informed this plan]
 
 ## Dependencies and Prerequisites
 
@@ -177,26 +207,26 @@ Then [expected outcome]
 
 The agent also writes `[FEATURE_DIR]/ROADMAP.md` with: overall status (🔴 Not started), a progress table (ID / Task / Status ⬜🔄✅❌ / Notes), status legend, empty Execution History section, and Next Step pointing to T01.
 
-**Step 3.2 — Present to user**
+**Step 4.2 — Present to user**
 Show the task list and ask:
 
 > "Does the plan reflect what you want to build? Are there missing tasks, tasks out of order, or tasks that are clearly out of scope for this delivery?"
 
-Incorporate feedback before proceeding to Phase 4.
+Incorporate feedback before proceeding to Phase 5.
 
 ---
 
-## Phase 4 — Council Review
+## Phase 5 — Council Review
 
-**Goal:** Run the plan through the full council review (same process as `/council:review`) to surface issues before implementation begins.
+**Goal:** Run the plan through the full council review to surface issues before implementation begins.
 
-**Step 4.1 — Invoke council review**
-Read PLAN.md (and PLAN-01.md etc. if split) and pass the full content to the council review process — the same 3-phase process defined in the `council` skill: 5 independent reports → debate → unified report.
+**Step 5.1 — Invoke council review**
+Read PLAN.md (and PLAN-01.md etc. if split) and pass the full content to the council review process — the same 3-phase process defined in the `council:review` skill: 5 independent reports → debate → unified report.
 
 The council review target is the PLAN.md content, not the original feature description.
 
-**Step 4.2 — Write individual advisor files**
-After the 5 independent reports are produced (Phase 1 of the council review), write one file per advisor in `[FEATURE_DIR]/council/`:
+**Step 5.2 — Write individual advisor files**
+After the 5 independent reports are produced, write one file per advisor in `[FEATURE_DIR]/council/`:
 
 - `[FEATURE_DIR]/council/TURING.md`
 - `[FEATURE_DIR]/council/LOVELACE.md`
@@ -206,20 +236,21 @@ After the 5 independent reports are produced (Phase 1 of the council review), wr
 
 Each file contains the advisor's full Phase 1 report plus a "Position After Debate" section describing what they conceded, held firm on, and why.
 
-**Step 4.3 — Write SUMMARY_OF_COUNCIL.md**
+**Step 5.3 — Write SUMMARY_OF_COUNCIL.md**
 After the full council review (reports + debate + unified report), write `[FEATURE_DIR]/SUMMARY_OF_COUNCIL.md` with: review date, individual verdicts table (Advisor / Verdict / Position Held in Debate ✅🔄), consolidated diagnosis, priority map (Blockers / Manageable Risks / Accepted Debt), decisions that belong to the team, and final recommendation (PROCEED / PROCEED WITH ADJUSTMENTS / REVISE BEFORE PROCEEDING) with specific conditions and next 3 concrete steps.
 
-**Step 4.4 — Apply adjustments to plan**
+**Step 5.4 — Apply adjustments to plan**
 After writing the council files:
 
 - Apply all **Blockers** as mandatory changes to PLAN.md before marking the plan ready
 - Apply **Manageable Risks** as new tasks or notes in PLAN.md
+- If a Blocker affects a user journey, update UX.md accordingly before marking the plan ready
 - Log **Accepted Debt** in ROADMAP.md under a "Registered Technical Debt" section
 - Copy **Decisions That Belong to the Team** as open questions in ROADMAP.md
 
 Update ROADMAP.md status to: `🟡 Awaiting execution — plan reviewed by council`.
 
-**Step 4.5 — Final handoff to user**
+**Step 5.5 — Final handoff to user**
 Present a summary:
 
 ```
@@ -227,6 +258,7 @@ Present a summary:
 
 📁 Files created in [FEATURE_DIR]:
 - RESEARCH.md — market research and prior art
+- TECHNICAL_SKETCH.md — feasibility constraints and chosen direction
 - UX.md — personas and user journeys
 - PLAN.md — reviewed implementation plan
 - ROADMAP.md — progress tracker
@@ -249,8 +281,8 @@ To start execution: /council:execute [FEATURE_SLUG]
 - The user's answers must visibly influence the output. If they don't, the agent is not listening.
 - Files are always written to `.council/[FEATURE_SLUG]/` relative to the project root (current working directory).
 - The planning agent must write tasks specific enough to implement without further clarification. If you can't specify Files + Action + Verify + Done, the task is too vague.
-- The council review in Phase 4 uses the full 3-phase process (reports → debate → unified report) from the `council:review` skill — do not abbreviate it.
-- **PROJECT.md context:** If `.council/PROJECT.md` was loaded in Step 0.1, pass its full contents to every agent spawned in this session (research agents, UX agent, planning agent, council review agents). Prepend it to each agent's context as: "Project context (do not re-research this):\n[PROJECT.md contents]". This replaces the need for agents to infer the stack from scratch.
+- The council review in Phase 5 uses the full 3-phase process (reports → debate → unified report) from the `council:review` skill — do not abbreviate it.
+- **PROJECT.md context:** If `.council/PROJECT.md` was loaded in Step 0.1, pass its full contents to every agent spawned in this session (research agents, technical sketch agent, UX agent, planning agent, council review agents). Prepend it to each agent's context as: "Project context (do not re-research this):\n[PROJECT.md contents]". This replaces the need for agents to infer the stack from scratch.
 - Use English (en-US) for all instructions and generated files. Respond to the user in their language.
 </instructions>
 
@@ -307,7 +339,7 @@ Boundaries prevent scope creep by making off-limits areas explicit.
 ```
 PREFER: Plan 01 = User (model + API + UI)
         Plan 02 = Product (model + API + UI)
-k
+
 AVOID:  Plan 01 = All models
         Plan 02 = All APIs
 ```
@@ -338,4 +370,3 @@ AVOID:  Plan 01 = All models
 - Acceptance criteria must describe observable behavior, not internal structure. "The function has low complexity" is not verifiable. "Given a valid input, the endpoint returns 200 within 200ms" is.
 
 </plan_quality_rules>
-
