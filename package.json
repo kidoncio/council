@@ -19,7 +19,8 @@
     "commands/",
     "scripts/",
     "install.sh",
-    "uninstall.sh"
+    "uninstall.sh",
+    "LICENSE"
   ],
   "scripts": {
     "postinstall": "node scripts/install.js"
