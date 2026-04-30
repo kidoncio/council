@@ -1,6 +1,6 @@
 {
   "name": "@kidoncio/council",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A council of 5 AI advisors for Claude Code — plan, review, and execute features with adversarial validation.",
   "keywords": [
     "claude",
@@ -17,6 +17,7 @@
   },
   "files": [
     "commands/",
+    "scripts/",
     "install.sh",
     "uninstall.sh"
   ],
