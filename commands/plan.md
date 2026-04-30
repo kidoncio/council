@@ -1,6 +1,6 @@
 ---
-name: kidoncio:plan
-description: The council collaboratively researches, maps user flows, and creates a development plan for a feature or problem. Produces RESEARCH.md, UX.md, PLAN.md, and ROADMAP.md in .kidoncio/[FEATURE_NAME]/, then runs a council review on the final plan.
+name: council:plan
+description: The council collaboratively researches, maps user flows, and creates a development plan for a feature or problem. Produces RESEARCH.md, UX.md, PLAN.md, and ROADMAP.md in .council/[FEATURE_NAME]/, then runs a council review on the final plan.
 argument-hint: "<feature name or problem description>"
 allowed-tools: [Read, Write, Bash, Glob, Agent, WebSearch, AskUserQuestion]
 ---
@@ -8,7 +8,7 @@ allowed-tools: [Read, Write, Bash, Glob, Agent, WebSearch, AskUserQuestion]
 <objective>
 Guide the council through a structured 4-phase process to produce a complete, reviewed development plan. The council asks the user targeted questions at each phase before proceeding. No phase is skipped. No plan is created before research and UX are done.
 
-The output is a set of files in `.kidoncio/[FEATURE_NAME]/` that serve as the authoritative source of truth for implementation.
+The output is a set of files in `.council/[FEATURE_NAME]/` that serve as the authoritative source of truth for implementation.
 </objective>
 
 <advisors_reference>
@@ -19,7 +19,7 @@ The council is composed of 5 permanent advisors used throughout this process:
 - **TORVALDS** — Security Engineer. Focuses on attack surfaces and data exposure.
 - **DIJKSTRA** — Systems Thinker. Focuses on consistency, scalability, and data model evolution.
 - **HAMMURABI** — Code Quality Judge. Focuses on maintainability and future developer experience.
-  </advisors_reference>
+</advisors_reference>
 
 <process>
 
@@ -30,7 +30,7 @@ Read $ARGUMENTS. If provided, use it as the working feature name (slugify for di
 
 > "What is the name of the feature or problem the council should plan?"
 
-Derive `FEATURE_SLUG` (e.g., "grooming-scheduling") and `FEATURE_DIR` = `.kidoncio/[FEATURE_SLUG]`.
+Derive `FEATURE_SLUG` (e.g., "grooming-scheduling") and `FEATURE_DIR` = `.council/[FEATURE_SLUG]`.
 Create the directory: `mkdir -p [FEATURE_DIR]`.
 
 ---
@@ -346,7 +346,7 @@ The agent also writes `[FEATURE_DIR]/ROADMAP.md`:
 - ❌ Blocked
 
 ## Execution History
-[Entries added by kidoncio:execute as tasks complete]
+[Entries added by council:execute as tasks complete]
 
 ## Next Step
 [T01] — [Task title]
@@ -363,10 +363,10 @@ Incorporate feedback before proceeding to Phase 4.
 
 ## Phase 4 — Council Review
 
-**Goal:** Run the plan through the full council review (same process as `/kidoncio:review`) to surface issues before implementation begins.
+**Goal:** Run the plan through the full council review (same process as `/council:review`) to surface issues before implementation begins.
 
 **Step 4.1 — Invoke council review**
-Read PLAN.md (and PLAN-01.md etc. if split) and pass the full content to the council review process — the same 3-phase process defined in the `kidoncio` skill: 5 independent reports → debate → unified report.
+Read PLAN.md (and PLAN-01.md etc. if split) and pass the full content to the council review process — the same 3-phase process defined in the `council` skill: 5 independent reports → debate → unified report.
 
 The council review target is the PLAN.md content, not the original feature description.
 
@@ -419,13 +419,13 @@ After the full council review (reports + debate + unified report), write `[FEATU
 
 ## Individual Verdicts
 
-| Advisor             | Verdict   | Position Held in Debate?        |
-| ------------------- | --------- | ------------------------------- |
-| PRAGMATIST_ENGINEER | [verdict] | ✅ Held / 🔄 Partially conceded |
-| PRODUCT_STRATEGY    | [verdict] | [same]                          |
-| SECURITY_ENGINEER   | [verdict] | [same]                          |
-| ARCHITECTURE        | [verdict] | [same]                          |
-| CODE_QUALITY        | [verdict] | [same]                          |
+| Advisor   | Verdict   | Position Held in Debate?        |
+| --------- | --------- | ------------------------------- |
+| TURING    | [verdict] | ✅ Held / 🔄 Partially conceded |
+| LOVELACE  | [verdict] | [same]                          |
+| TORVALDS  | [verdict] | [same]                          |
+| DIJKSTRA  | [verdict] | [same]                          |
+| HAMMURABI | [verdict] | [same]                          |
 
 ## Consolidated Diagnosis
 
@@ -489,12 +489,12 @@ Present a summary:
 - SUMMARY_OF_COUNCIL.md — council review summary
 
 📁 Individual reports in [FEATURE_DIR]/council/:
-- SENIOR_ENGINEER.md, PRODUCT_STRATEGY.md, SECURITY_ENGINEER.md, ARCHITECTURE.md, CODE_QUALITY.md
+- TURING.md, LOVELACE.md, TORVALDS.md, DIJKSTRA.md, HAMMURABI.md
 
 ✅ Reviewed by council — [N] adjustments applied to plan
 ⚠️ [N] open decisions that belong to the team (see ROADMAP.md)
 
-To start execution: /kidoncio:execute [FEATURE_SLUG]
+To start execution: /council:execute [FEATURE_SLUG]
 ```
 
 </process>
@@ -503,9 +503,9 @@ To start execution: /kidoncio:execute [FEATURE_SLUG]
 - The council always asks questions before acting. No phase starts without user input.
 - Questions are asked in a single message per phase — not one at a time.
 - The user's answers must visibly influence the output. If they don't, the agent is not listening.
-- Files are always written to `.kidoncio/[FEATURE_SLUG]/` relative to the project root (current working directory).
+- Files are always written to `.council/[FEATURE_SLUG]/` relative to the project root (current working directory).
 - The planning agent must write tasks specific enough to implement without further clarification. If you can't specify Files + Action + Verify + Done, the task is too vague.
-- The council review in Phase 4 uses the full 3-phase process (reports → debate → unified report) from the `kidoncio:review` skill — do not abbreviate it.
+- The council review in Phase 4 uses the full 3-phase process (reports → debate → unified report) from the `council:review` skill — do not abbreviate it.
 - Use English (en-US) for all instructions and generated files. Respond to the user in their language.
 </instructions>
 
@@ -562,7 +562,7 @@ Boundaries prevent scope creep by making off-limits areas explicit.
 ```
 PREFER: Plan 01 = User (model + API + UI)
         Plan 02 = Product (model + API + UI)
-
+k
 AVOID:  Plan 01 = All models
         Plan 02 = All APIs
 ```

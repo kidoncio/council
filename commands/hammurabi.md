@@ -1,5 +1,5 @@
 ---
-name: kidoncio:code-quality
+name: council:hammurabi
 description: Ask HAMMURABI — the Code Quality Judge — for a code review focused on maintainability, conventions, and the developer who inherits this in 6 months.
 argument-hint: "<code, plan, API design, or file path to review>"
 allowed-tools: [Read, Bash, Glob]

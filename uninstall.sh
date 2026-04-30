@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DEST="${HOME}/.claude/commands/kidoncio"
+DEST="${HOME}/.claude/commands/council"
 
 if [ ! -d "${DEST}" ]; then
-  echo "kidoncio is not installed — nothing to remove."
+  echo "council is not installed — nothing to remove."
   exit 0
 fi
 
 rm -rf "${DEST}"
 echo ""
-echo "✓ kidoncio commands removed from ${DEST}"
+echo "✓ council commands removed from ${DEST}"
 echo ""

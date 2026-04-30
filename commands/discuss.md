@@ -1,16 +1,16 @@
 ---
-name: kidoncio:discuss
-description: Think through a feature or problem before planning. Acts as a thinking partner to explore goals, constraints, and approach — then writes CONTEXT.md for handoff to kidoncio:plan.
+name: council:discuss
+description: Think through a feature or problem before planning. Acts as a thinking partner to explore goals, constraints, and approach — then writes CONTEXT.md for handoff to council:plan.
 argument-hint: "<feature name or problem description>"
 allowed-tools: [Read, Write, Bash, Glob, AskUserQuestion]
 ---
 
 <objective>
-Facilitate vision articulation before planning. This command is a thinking partner — it asks the user targeted questions to surface goals, constraints, and approach, then writes a CONTEXT.md file that `kidoncio:plan` will use as its starting point.
+Facilitate vision articulation before planning. This command is a thinking partner — it asks the user targeted questions to surface goals, constraints, and approach, then writes a CONTEXT.md file that `council:plan` will use as its starting point.
 
 **Philosophy:** Goals first — everything else (approach, constraints, risks) derives from what the user wants to achieve. Do not ask about implementation before understanding what success looks like.
 
-**Distinction from planning:** This workflow gathers USER input and intent. Planning takes that input and researches, maps journeys, and creates tasks. Discussion must come first — or not at all, and the user goes straight to `/kidoncio:plan`.
+**Distinction from planning:** This workflow gathers USER input and intent. Planning takes that input and researches, maps journeys, and creates tasks. Discussion must come first — or not at all, and the user goes straight to `/council:plan`.
 </objective>
 
 <process>
@@ -22,7 +22,7 @@ Read $ARGUMENTS. If provided, use it as the feature name (slugify for directory:
 
 > "What feature or problem do you want to think through before planning?"
 
-Derive `FEATURE_SLUG` and `FEATURE_DIR` = `.kidoncio/[FEATURE_SLUG]`.
+Derive `FEATURE_SLUG` and `FEATURE_DIR` = `.council/[FEATURE_SLUG]`.
 Create the directory: `mkdir -p [FEATURE_DIR]`.
 
 If `FEATURE_DIR/CONTEXT.md` already exists, read it and tell the user:
@@ -156,7 +156,7 @@ Context saved to [FEATURE_DIR]/CONTEXT.md
 
 This context will guide the planning session — the council will use it to focus research and UX mapping on what actually matters to you.
 
-→ Ready to plan? Run: /kidoncio:plan [FEATURE_SLUG]
+→ Ready to plan? Run: /council:plan [FEATURE_SLUG]
 ```
 
 </process>
@@ -165,7 +165,7 @@ This context will guide the planning session — the council will use it to focu
 - Goals first. Never ask about implementation before the user has articulated what success looks like.
 - Ask all clarifying questions per step in a single message — not one at a time.
 - The user's exact words matter. Synthesize, don't paraphrase into abstraction. "Users need to see their dog's history" is better than "historical data access is required."
-- If the user wants to skip discussion and go straight to planning, route them there: "Got it — go ahead and run `/kidoncio:plan [FEATURE_SLUG]`. No discussion context will be available, and the council will ask their own clarifying questions."
+- If the user wants to skip discussion and go straight to planning, route them there: "Got it — go ahead and run `/council:plan [FEATURE_SLUG]`. No discussion context will be available, and the council will ask their own clarifying questions."
 - CONTEXT.md is always written before the session ends. If the user cuts the conversation short, write what you have.
 - Use English (en-US) for all instructions. Respond to the user in their language.
 </instructions>
@@ -189,7 +189,7 @@ This context will guide the planning session — the council will use it to focu
 
 **Treating this as a planning session:**
 - DON'T: Start researching, proposing architectures, or writing tasks.
-- DO: Listen, ask, and capture. The council plans in `/kidoncio:plan`.
+- DO: Listen, ask, and capture. The council plans in `/council:plan`.
 </anti_patterns>
 
 <success_criteria>
@@ -198,5 +198,5 @@ This context will guide the planning session — the council will use it to focu
 - [ ] Constraints, current state, risks, and inspiration explored
 - [ ] Synthesis confirmed by user before writing
 - [ ] CONTEXT.md written to [FEATURE_DIR]
-- [ ] Clear handoff to /kidoncio:plan
+- [ ] Clear handoff to /council:plan
 </success_criteria>

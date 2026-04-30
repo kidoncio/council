@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
-const DEST_DIR = path.join(os.homedir(), ".claude", "commands", "kidoncio");
+const DEST_DIR = path.join(os.homedir(), ".claude", "commands", "council");
 const SRC_DIR = path.join(__dirname, "..", "commands");
 
 function install() {
@@ -20,11 +20,11 @@ function install() {
     fs.copyFileSync(src, dest);
   }
 
-  console.log(`\n✓ kidoncio: ${files.length} commands installed to ${DEST_DIR}\n`);
+  console.log(`\n✓ council: ${files.length} commands installed to ${DEST_DIR}\n`);
   console.log("Available commands in Claude Code:");
   for (const file of files) {
     const name = path.basename(file, ".md");
-    console.log(`  /kidoncio:${name}`);
+    console.log(`  /council:${name}`);
   }
   console.log("");
 }
@@ -32,6 +32,6 @@ function install() {
 try {
   install();
 } catch (err) {
-  console.error("kidoncio install failed:", err.message);
+  console.error("council install failed:", err.message);
   process.exit(1);
 }

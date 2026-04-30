@@ -1,5 +1,5 @@
 ---
-name: kidoncio:senior-engineer
+name: council:turing
 description: Ask TURING — the Pragmatist Engineer — for his opinion on any code, plan, or decision. Blunt, operational, no-nonsense.
 argument-hint: "<code, plan, or question to review>"
 allowed-tools: [Read, Bash, Glob]

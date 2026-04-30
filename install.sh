@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DEST="${HOME}/.claude/commands/kidoncio"
-REPO="https://github.com/kidoncio/kidoncio-commands"
+DEST="${HOME}/.claude/commands/council"
+REPO="https://github.com/kidoncio/council"
 COMMANDS_URL="${REPO}/raw/main/commands"
 
 COMMANDS=(
@@ -12,6 +12,7 @@ COMMANDS=(
   execute
   plan
   product-strategy
+  research
   review
   security-engineer
   senior-engineer
@@ -46,10 +47,10 @@ install_from_remote() {
 
 echo ""
 if [ -d "${LOCAL_SRC}" ]; then
-  echo "Installing kidoncio commands from local clone..."
+  echo "Installing council commands from local clone..."
   install_from_local
 else
-  echo "Installing kidoncio commands from GitHub..."
+  echo "Installing council commands from GitHub..."
   install_from_remote
 fi
 
@@ -58,8 +59,8 @@ echo "✓ ${#COMMANDS[@]} commands installed to ${DEST}"
 echo ""
 echo "Available in Claude Code:"
 for cmd in "${COMMANDS[@]}"; do
-  echo "  /kidoncio:${cmd}"
+  echo "  /council:${cmd}"
 done
 echo ""
-echo "Run 'uninstall.sh' or 'kidoncio uninstall' to remove."
+echo "Run 'uninstall.sh' or 'council uninstall' to remove."
 echo ""

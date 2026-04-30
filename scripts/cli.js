@@ -4,13 +4,13 @@ const args = process.argv.slice(2);
 const command = args[0];
 
 const help = `
-kidoncio — council of AI advisors for Claude Code
+council — council of AI advisors for Claude Code
 
 Usage:
-  kidoncio install     Copy commands to ~/.claude/commands/kidoncio/
-  kidoncio uninstall   Remove commands from ~/.claude/commands/kidoncio/
-  kidoncio list        List installed commands
-  kidoncio --version   Print version
+  council install     Copy commands to ~/.claude/commands/council/
+  council uninstall   Remove commands from ~/.claude/commands/council/
+  council list        List installed commands
+  council --version   Print version
 
 `;
 
@@ -39,15 +39,15 @@ if (command === "list") {
   const fs = require("fs");
   const path = require("path");
   const os = require("os");
-  const dir = path.join(os.homedir(), ".claude", "commands", "kidoncio");
+  const dir = path.join(os.homedir(), ".claude", "commands", "council");
   if (!fs.existsSync(dir)) {
-    console.log("kidoncio is not installed. Run: kidoncio install");
+    console.log("council is not installed. Run: council install");
     process.exit(1);
   }
   const files = fs.readdirSync(dir).filter((f) => f.endsWith(".md"));
   console.log(`\nInstalled commands (${dir}):\n`);
   for (const f of files) {
-    console.log(`  /kidoncio:${path.basename(f, ".md")}`);
+    console.log(`  /council:${path.basename(f, ".md")}`);
   }
   console.log("");
   process.exit(0);

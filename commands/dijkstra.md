@@ -1,5 +1,5 @@
 ---
-name: kidoncio:architecture
+name: council:dijkstra
 description: Ask DIJKSTRA — the Systems Thinker — for his analysis of any architecture, data model, or plan. Thinks in consistency guarantees, failure modes, and 3-year migrations.
 argument-hint: "<architecture, data model, plan, or question>"
 allowed-tools: [Read, Bash, Glob]

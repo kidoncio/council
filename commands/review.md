@@ -1,5 +1,5 @@
 ---
-name: kidoncio:review
+name: council:review
 description: Invoke 5 advisors with distinct perspectives to review a development plan. Advisors produce independent reports, then debate each other's positions to reach a unified verdict.
 argument-hint: "<plan or description of what you want reviewed>"
 allowed-tools: [Read, Agent, Bash, Glob]

@@ -1,102 +1,166 @@
-# kidoncio
+<div align="center">
 
-A council of 5 AI advisors for [Claude Code](https://claude.ai/code). Plan features with adversarial validation, execute with discipline, and get sharp opinionated reviews from TURING, LOVELACE, TORVALDS, DIJKSTRA, and HAMMURABI.
+# Council
 
-## Commands
+**A council of 5 AI advisors for [Claude Code](https://claude.ai/code). Plan with adversarial validation. Ship with confidence.**
 
-| Command | What it does |
-|---------|-------------|
-| `/kidoncio:discuss` | Think through a feature before planning — captures goals, constraints, and risks into `CONTEXT.md` |
-| `/kidoncio:plan` | Full 4-phase planning: research → UX mapping → task plan → council review |
-| `/kidoncio:execute` | Execute a plan task by task, with scope discipline and ROADMAP.md tracking |
-| `/kidoncio:review` | Adversarial 3-phase review: 5 independent reports → debate → unified verdict |
-| `/kidoncio:senior-engineer` | Ask TURING for a blunt operational take on any code or plan |
-| `/kidoncio:security-engineer` | Ask TORVALDS to threat-model any feature, code, or plan |
-| `/kidoncio:product-strategy` | Ask LOVELACE for a user-outcome driven critique |
-| `/kidoncio:architecture` | Ask DIJKSTRA to analyze consistency, failure modes, and 3-year migrations |
-| `/kidoncio:code-quality` | Ask HAMMURABI for a maintainability review with cyclomatic complexity analysis |
+[![npm version](https://img.shields.io/npm/v/@kidoncio/council?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/@kidoncio/council)
+[![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/kidoncio/council?style=for-the-badge&logo=github&color=181717)](https://github.com/kidoncio/council)
 
-## Install
-
-### npm (recommended)
+<br>
 
 ```bash
-npm install -g kidoncio
+npm install -g @kidoncio/council
 ```
 
-This runs `postinstall` automatically and copies the commands to `~/.claude/commands/kidoncio/`.
+<br>
 
-After install, run `kidoncio list` to confirm:
+_"Don't ship a plan that only one perspective reviewed."_
 
-```bash
-kidoncio list
-```
+<br>
 
-To remove:
+[Why Council](#why-council) · [The Council](#the-council) · [Getting Started](#getting-started) · [Commands](#commands) · [Output Files](#output-files)
 
-```bash
-kidoncio uninstall
-# or
-npm uninstall -g kidoncio
-```
+</div>
 
-### Manual — curl
+---
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/kidoncio/kidoncio-commands/main/install.sh | bash
-```
+## Why Council
 
-### Manual — clone
+Claude Code is powerful. But when you plan alone, you have one perspective.
 
-```bash
-git clone https://github.com/kidoncio/kidoncio-commands.git
-cd kidoncio-commands
-./install.sh
-```
+You optimize for what you already know how to build. You don't see the attack surface your security engineer would catch. You don't hear the PM question whether you're solving the right problem. You don't feel the 3am incident that makes your architecture choice look naive in hindsight.
 
-To remove:
+Council gives you five permanent advisors — each with a distinct worldview and a mandate to disagree — embedded directly in Claude Code as slash commands.
 
-```bash
-./uninstall.sh
-```
+They don't agree easily. **That's the point.**
 
-## Workflow
-
-The commands are designed to work in sequence:
-
-```
-/kidoncio:discuss        ← optional: articulate goals before planning
-       ↓
-/kidoncio:plan           ← research + UX mapping + task plan + council review
-       ↓
-/kidoncio:execute        ← implement task by task, update ROADMAP.md
-```
-
-The single-advisor commands (`senior-engineer`, `security-engineer`, etc.) can be used at any time for a focused opinion.
+---
 
 ## The Council
 
-Five permanent advisors with distinct worldviews. They don't agree easily.
+Five advisors. Five lenses. All permanently disagreeing with at least one of the others.
 
-- **TURING** — Pragmatist Engineer. 15 years of production scars. "What happens when this breaks at 3am?"
-- **LOVELACE** — Product Strategist. Former PM. "Are we solving the right problem? What does the user actually feel?"
-- **TORVALDS** — Security Engineer. Threat modeler. "What's the worst thing a malicious user can do with this?"
-- **DIJKSTRA** — Systems Thinker. Staff engineer. "What does this look like at 100x load? What's the migration path?"
-- **HAMMURABI** — Code Quality Judge. Principal engineer. "Would a new engineer understand this in 6 months with no context?"
+| Advisor       | Role                | Their question                                                        |
+| ------------- | ------------------- | --------------------------------------------------------------------- |
+| **TURING**    | Pragmatist Engineer | _"What happens when this breaks at 3am?"_                             |
+| **LOVELACE**  | Product Strategist  | _"Are we solving the right problem?"_                                 |
+| **TORVALDS**  | Security Engineer   | _"What's the worst thing a malicious user can do with this?"_         |
+| **DIJKSTRA**  | Systems Thinker     | _"What does this look like at 100x load in 3 years?"_                 |
+| **HAMMURABI** | Code Quality Judge  | _"Would a new engineer understand this in 6 months with no context?"_ |
 
-## Output files
+Each advisor has a philosophy, a blind spot, and a debate style. They produce independent reports, argue with each other, and converge on a verdict only when the argument is actually settled.
 
-Plans are written to `.kidoncio/[feature-slug]/` in your project:
+---
+
+## Getting Started
+
+```bash
+npm install -g @kidoncio/council
+```
+
+`postinstall` copies the commands to `~/.claude/commands/council/` automatically.
+
+Confirm it worked:
+
+```bash
+council list
+```
+
+Then open Claude Code and run your first plan:
 
 ```
-.kidoncio/
+/council:plan add user authentication
+```
+
+---
+
+## The Workflow
+
+The commands are designed to run in sequence — but each one is independently useful.
+
+```
+/council:discuss    ← optional: articulate goals, constraints, open questions
+        ↓
+/council:research   ← optional: deep research before committing to a plan
+        ↓
+/council:plan       ← research → UX mapping → task plan → council review
+        ↓
+/council:execute    ← implement task by task, track progress in ROADMAP.md
+```
+
+`/council:plan` detects and reuses an existing `RESEARCH.md` automatically — no duplicate work.
+
+Use the single-advisor commands any time for a focused opinion without convening the full council.
+
+---
+
+## Commands
+
+### Planning
+
+| Command             | What it does                                                                                                                                        |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/council:discuss`  | Think through a feature before committing to a plan. Surfaces goals, constraints, and risks into `CONTEXT.md`. Handoff to `/plan` is automatic.     |
+| `/council:research` | Spawn parallel research agents on a feature or problem. Produces `RESEARCH.md` without committing to a plan. Reused automatically by `/plan`.       |
+| `/council:plan`     | 4-phase structured planning: research → UX mapping → task plan → adversarial council review. Produces a complete file set in `.council/[feature]/`. |
+| `/council:execute`  | Reads `PLAN.md`, implements tasks in dependency order, and updates `ROADMAP.md` after each one. Pauses for input when blocked or ambiguous.         |
+
+### Council Reviews
+
+Convene one advisor or all five — your choice.
+
+| Command                       | Advisor   | What they focus on                                          |
+| ----------------------------- | --------- | ----------------------------------------------------------- |
+| `/council:review`             | All five  | Independent reports → debate → unified verdict              |
+| `/council:senior-engineer`    | TURING    | Operational complexity, blast radius, debuggability         |
+| `/council:security-engineer`  | TORVALDS  | Attack surface, data exposure, specific CVE classes         |
+| `/council:product-strategy`   | LOVELACE  | User outcomes, delivery speed, the right problem            |
+| `/council:architecture`       | DIJKSTRA  | Consistency guarantees, failure modes, migration paths      |
+| `/council:code-quality`       | HAMMURABI | Maintainability, cyclomatic complexity, 6-month inheritance |
+
+---
+
+## How the Review Works
+
+`/council:review` runs a 3-phase adversarial process:
+
+```
+Phase 1 — Independent reports
+Each advisor reviews the plan separately, with no knowledge of the others' findings.
+
+Phase 2 — Debate
+Advisors challenge each other's conclusions directly.
+Consensus achieved too easily is a failure of the process.
+
+Phase 3 — Unified verdict
+A synthesized report that names the real trade-offs and what you must decide before committing.
+```
+
+The single-advisor commands skip the debate and give you one sharp opinion fast.
+
+---
+
+## Output Files
+
+Plans are written to `.council/[feature-slug]/` inside your project. Everything is plaintext and lives in your repo — no external state, no accounts, no dashboard.
+
+```
+.council/
 └── my-feature/
-    ├── CONTEXT.md          ← discussion output (from /discuss)
-    ├── RESEARCH.md         ← market research and prior art
-    ├── UX.md               ← personas and user journeys
-    ├── PLAN.md             ← implementation tasks with BDD acceptance criteria
-    ├── ROADMAP.md          ← progress tracker (updated by /execute)
+    ├── CONTEXT.md           ← goals and constraints (from /discuss)
+    ├── RESEARCH.md          ← synthesized research (from /research or /plan)
+    ├── UX.md                ← personas and user journeys
+    ├── PLAN.md              ← tasks with BDD acceptance criteria
+    ├── ROADMAP.md           ← live progress tracker (updated by /execute)
     ├── SUMMARY_OF_COUNCIL.md
+    ├── research/            ← individual agent reports (from /research)
+    │   ├── market-solutions.md
+    │   ├── ux-patterns.md
+    │   ├── technical-approaches.md
+    │   ├── failure-modes.md
+    │   └── security-and-compliance.md
     └── council/
         ├── TURING.md
         ├── LOVELACE.md
@@ -105,12 +169,62 @@ Plans are written to `.kidoncio/[feature-slug]/` in your project:
         └── HAMMURABI.md
 ```
 
+---
+
+## Install
+
+### npm (recommended)
+
+```bash
+npm install -g @kidoncio/council
+```
+
+To uninstall:
+
+```bash
+council uninstall
+# or
+npm uninstall -g @kidoncio/council
+```
+
+### curl
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/kidoncio/council/main/install.sh | bash
+```
+
+### Clone
+
+```bash
+git clone https://github.com/kidoncio/council.git
+cd council
+./install.sh
+```
+
+To uninstall:
+
+```bash
+./uninstall.sh
+```
+
+---
+
 ## Requirements
 
-- [Claude Code](https://claude.ai/code) CLI installed
-- Node.js 18+ (for npm install)
+- [Claude Code](https://claude.ai/code) CLI
+- Node.js 18+
 - `curl` (for the curl install method)
+
+---
 
 ## License
 
 MIT
+
+---
+
+<div align="center">
+
+**Five advisors. One plan. Ship with confidence.**
+
+</div>

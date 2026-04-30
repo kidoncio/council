@@ -1,5 +1,5 @@
 ---
-name: kidoncio:security-engineer
+name: council:torvalds
 description: Ask TORVALDS — the Security Engineer — for his threat model on any feature, code, or plan. Paranoid, specific, names CVE classes not vague warnings.
 argument-hint: "<code, feature, or plan to threat-model>"
 allowed-tools: [Read, Bash, Glob]
