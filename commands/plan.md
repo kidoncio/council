@@ -33,6 +33,8 @@ Read $ARGUMENTS. If provided, use it as the working feature name (slugify for di
 Derive `FEATURE_SLUG` (e.g., "grooming-scheduling") and `FEATURE_DIR` = `.council/[FEATURE_SLUG]`.
 Create the directory: `mkdir -p [FEATURE_DIR]`.
 
+If `[FEATURE_DIR]/CONTEXT.md` exists, read it silently — it contains goals and constraints from a prior `/council:discuss` session and must be passed to every agent as additional context.
+
 **Step 0.1 — Load or initialize PROJECT.md**
 Check if `.council/PROJECT.md` exists.
 
@@ -113,6 +115,7 @@ Spawn a single UX agent. It receives: the feature description, RESEARCH.md, TECH
 - Flag where the journey touches other system features (integration points)
 
 The agent writes to `[FEATURE_DIR]/UX.md` with:
+
 - At least 2 named personas (context + goal each)
 - A journey per persona: entry point → step table (User Action / System Response / State ✅⚠️❌) → success state → error states → integration points
 - Alternative flows and edge cases (bullet list)
@@ -133,7 +136,7 @@ Incorporate feedback into UX.md before proceeding.
 **Goal:** Translate research, technical constraints, and UX into a concrete, sequenced implementation plan.
 
 **Step 4.1 — Planning agent**
-Spawn a single planning agent. It receives: RESEARCH.md, TECHNICAL_SKETCH.md, UX.md, the user's context, and these constraints:
+Spawn a single planning agent. It receives: PROJECT.md, CONTEXT.md, RESEARCH.md, TECHNICAL_SKETCH.md, UX.md, the user's context, and these constraints:
 
 > Create a development plan that a developer can follow without needing further clarification. Each task must be specific enough to estimate. The plan must respect the hard constraints from TECHNICAL_SKETCH.md and the business rules and edge cases surfaced in UX.md. Prefer sequencing that delivers a working slice end-to-end before adding complexity.
 >
@@ -148,7 +151,7 @@ The agent writes to `[FEATURE_DIR]/PLAN.md` (or PLAN-01.md etc.):
 
 ## Context
 
-[1 paragraph: what we're building, why, and what research/technical constraints/UX informed this plan]
+[1-2 paragraphs: what we're building, why, and what research/technical constraints/UX informed this plan]
 
 ## Dependencies and Prerequisites
 
@@ -203,8 +206,6 @@ Then [expected outcome]
 
 [Risks surfaced by research or UX that the implementation must account for]
 
-````
-
 The agent also writes `[FEATURE_DIR]/ROADMAP.md` with: overall status (🔴 Not started), a progress table (ID / Task / Status ⬜🔄✅❌ / Notes), status legend, empty Execution History section, and Next Step pointing to T01.
 
 **Step 4.2 — Present to user**
@@ -221,26 +222,19 @@ Incorporate feedback before proceeding to Phase 5.
 **Goal:** Run the plan through the full council review to surface issues before implementation begins.
 
 **Step 5.1 — Invoke council review**
-Read PLAN.md (and PLAN-01.md etc. if split) and pass the full content to the council review process — the same 3-phase process defined in the `council:review` skill: 5 independent reports → debate → unified report.
+Read PLAN.md (and PLAN-01.md etc. if split) and invoke the `council:review` process, passing:
+- The full PLAN.md content as the plan to review
+- `[FEATURE_DIR]/council/` as the output directory for advisor files
 
-The council review target is the PLAN.md content, not the original feature description.
+The `council:review` process runs autonomously and produces all output files directly:
+- Each of the 5 advisors writes their own `[FEATURE_DIR]/council/[ADVISOR].md` (report + Position After Debate)
+- The debate agent writes `[FEATURE_DIR]/council/DEBATE.md`
+- The synthesis agent writes `[FEATURE_DIR]/SUMMARY_OF_COUNCIL.md`
 
-**Step 5.2 — Write individual advisor files**
-After the 5 independent reports are produced, write one file per advisor in `[FEATURE_DIR]/council/`:
+Wait for all files to exist before proceeding to Step 5.2. Do not write or modify any council files yourself — `council:review` owns all output in `[FEATURE_DIR]/council/` and `SUMMARY_OF_COUNCIL.md`.
 
-- `[FEATURE_DIR]/council/TURING.md`
-- `[FEATURE_DIR]/council/LOVELACE.md`
-- `[FEATURE_DIR]/council/TORVALDS.md`
-- `[FEATURE_DIR]/council/DIJKSTRA.md`
-- `[FEATURE_DIR]/council/HAMMURABI.md`
-
-Each file contains the advisor's full Phase 1 report plus a "Position After Debate" section describing what they conceded, held firm on, and why.
-
-**Step 5.3 — Write SUMMARY_OF_COUNCIL.md**
-After the full council review (reports + debate + unified report), write `[FEATURE_DIR]/SUMMARY_OF_COUNCIL.md` with: review date, individual verdicts table (Advisor / Verdict / Position Held in Debate ✅🔄), consolidated diagnosis, priority map (Blockers / Manageable Risks / Accepted Debt), decisions that belong to the team, and final recommendation (PROCEED / PROCEED WITH ADJUSTMENTS / REVISE BEFORE PROCEEDING) with specific conditions and next 3 concrete steps.
-
-**Step 5.4 — Apply adjustments to plan**
-After writing the council files:
+**Step 5.2 — Apply adjustments to plan**
+After `SUMMARY_OF_COUNCIL.md` exists, read it and apply its findings:
 
 - Apply all **Blockers** as mandatory changes to PLAN.md before marking the plan ready
 - Apply **Manageable Risks** as new tasks or notes in PLAN.md
@@ -250,7 +244,7 @@ After writing the council files:
 
 Update ROADMAP.md status to: `🟡 Awaiting execution — plan reviewed by council`.
 
-**Step 5.5 — Final handoff to user**
+**Step 5.3 — Final handoff to user**
 Present a summary:
 
 ```
@@ -265,7 +259,7 @@ Present a summary:
 - SUMMARY_OF_COUNCIL.md — council review summary
 
 📁 Individual reports in [FEATURE_DIR]/council/:
-- TURING.md, LOVELACE.md, TORVALDS.md, DIJKSTRA.md, HAMMURABI.md
+- TURING.md, LOVELACE.md, TORVALDS.md, DIJKSTRA.md, HAMMURABI.md, DEBATE.md
 
 ✅ Reviewed by council — [N] adjustments applied to plan
 ⚠️ [N] open decisions that belong to the team (see ROADMAP.md)
@@ -281,7 +275,7 @@ To start execution: /council:execute [FEATURE_SLUG]
 - The user's answers must visibly influence the output. If they don't, the agent is not listening.
 - Files are always written to `.council/[FEATURE_SLUG]/` relative to the project root (current working directory).
 - The planning agent must write tasks specific enough to implement without further clarification. If you can't specify Files + Action + Verify + Done, the task is too vague.
-- The council review in Phase 5 uses the full 3-phase process (reports → debate → unified report) from the `council:review` skill — do not abbreviate it.
+- The council review in Phase 5 uses the full 3-phase process from the `council:review` skill. Each advisor writes their own file, the debate agent writes DEBATE.md, and the synthesis agent writes SUMMARY_OF_COUNCIL.md. The orchestrator does not write any of these files — it only coordinates and waits.
 - **PROJECT.md context:** If `.council/PROJECT.md` was loaded in Step 0.1, pass its full contents to every agent spawned in this session (research agents, technical sketch agent, UX agent, planning agent, council review agents). Prepend it to each agent's context as: "Project context (do not re-research this):\n[PROJECT.md contents]". This replaces the need for agents to infer the stack from scratch.
 - Use English (en-US) for all instructions and generated files. Respond to the user in their language.
 </instructions>
@@ -306,22 +300,7 @@ Then [expected outcome]
 
 ## Boundaries Section
 
-Plans include explicit boundaries:
-
-```markdown
-<boundaries>
-## DO NOT CHANGE
-- database/migrations/* (schema locked for this phase)
-- src/lib/auth.ts (auth system stable)
-
-## SCOPE LIMITS
-
-- This plan creates API only - no UI
-- Do not add new dependencies
-  </boundaries>
-```
-
-Boundaries prevent scope creep by making off-limits areas explicit.
+The `<boundaries>` block in PLAN.md prevents scope creep by making off-limits files and limits explicit. Always include it — even if minimal.
 
 ## Sizing Guidance
 

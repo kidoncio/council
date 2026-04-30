@@ -1,12 +1,12 @@
 ---
 name: council:review
-description: Invoke 5 advisors with distinct perspectives to review a development plan. Advisors produce independent reports, then debate each other's positions to reach a unified verdict.
+description: Invoke 5 advisors with distinct perspectives to review a development plan. Each advisor writes their own report file. A debate agent writes DEBATE.md. A synthesis agent writes SUMMARY_OF_COUNCIL.md.
 argument-hint: "<plan or description of what you want reviewed>"
-allowed-tools: [Read, Agent, Bash, Glob]
+allowed-tools: [Read, Write, Agent, Bash, Glob]
 ---
 
 <objective>
-Convene a council of 5 advisors, each with a radically different worldview, to review the development plan passed as argument. The process has three phases: (1) independent reports, (2) a structured debate where advisors challenge each other's conclusions, and (3) a unified final report synthesizing the debate outcomes. The goal is adversarial validation — expose blind spots, force priority trade-offs, and surface what the team must decide before committing.
+Convene a council of 5 advisors, each with a radically different worldview, to review the development plan passed as argument. The process has three phases: (1) independent reports — each advisor writes their own file, (2) a structured debate where advisors challenge each other's conclusions — the debate agent writes DEBATE.md, and (3) a unified final report — the synthesis agent writes SUMMARY_OF_COUNCIL.md. The goal is adversarial validation — expose blind spots, force priority trade-offs, and surface what the team must decide before committing.
 
 **When to use:** Before implementing a significant feature, architecture change, or any plan that benefits from adversarial review.
 </objective>
@@ -68,43 +68,66 @@ The five council members are permanent personas. Each has a name, role, philosop
 
 <process>
 
-## Phase 1 — Independent Reports
+## Setup
 
-**Step 1 — Parse the plan**
+**Step 0 — Parse the plan and establish output directory**
 Read $ARGUMENTS carefully. If the argument references a file path, read the file. If it's inline text, treat it as the plan. If no argument is provided, ask the user to describe the plan.
 
-**Step 2 — Spawn 5 parallel subagents**
-Launch all 5 advisors simultaneously using the Agent tool. Each subagent receives only the plan text and their own persona — they do NOT see other advisors' reports yet. Each produces a structured report:
+Determine the output directory (`COUNCIL_DIR`) from context:
+- If called from `council:plan`, `COUNCIL_DIR` = `[FEATURE_DIR]/council/` (already known from that session)
+- If called standalone, derive `COUNCIL_DIR` from the plan file path (e.g., plan at `.council/my-feature/PLAN.md` → `COUNCIL_DIR` = `.council/my-feature/council/`)
+- If no file path is available, use `.council/review/council/` as default
 
-```
-## [ADVISOR NAME] — [ROLE]
+Create the directory: `mkdir -p [COUNCIL_DIR]`.
 
-### Overview
+---
+
+## Phase 1 — Independent Reports
+
+**Step 1 — Spawn 5 parallel advisor subagents**
+Launch all 5 advisors simultaneously using the Agent tool. Each subagent receives:
+- The full plan text
+- Their own persona definition (from `<advisors>` above) — they do NOT see other advisors' reports yet
+- The path where they must write their output: `[COUNCIL_DIR]/[ADVISOR_NAME].md`
+- The instruction: "Write your report directly to the file path provided. Do not return your report as a text response — write it to the file."
+
+Each advisor **writes their report directly** to their own file (`[COUNCIL_DIR]/TURING.md`, `[COUNCIL_DIR]/LOVELACE.md`, etc.) using this exact format:
+
+```markdown
+# [ADVISOR NAME] — [ROLE]
+
+## Overview
 [2-3 sentences: how this advisor reads the plan through their specific lens]
 
-### Pros
+## Pros
 - [concrete, specific strength — not generic praise]
 - [...]
 
-### Cons & Risks
+## Cons & Risks
 - [concrete, specific concern with named failure mode and reasoning]
 - [...]
 
-### Critical Questions
+## Critical Questions
 1. [First critical question]
 2. [Second critical question]
 3. [Third critical question]
 
-### Verdict
+## Verdict
 [APPROVE / APPROVE WITH RESERVATIONS / REJECT] — [1-2 sentence justification]
 ```
+
+The orchestrator waits for all 5 files to be written before proceeding. Do not proceed to Phase 2 until all 5 advisor files exist.
 
 ---
 
 ## Phase 2 — Council Debate
 
-**Step 3 — Spawn a debate subagent**
-After all 5 reports are collected, spawn a single subagent whose sole job is to simulate a structured council debate. This agent receives all 5 reports plus the personas of all 5 advisors and must produce a transcript of their debate.
+**Step 2 — Spawn a debate subagent**
+After all 5 advisor files exist, spawn a single debate subagent. It receives:
+- The paths to all 5 advisor files (which it must read)
+- The personas of all 5 advisors (from `<advisors>` above)
+- The path where it must write its output: `[COUNCIL_DIR]/DEBATE.md`
+- The instruction: "Read all 5 advisor reports, simulate the structured debate below, and write the full debate transcript directly to the file path provided."
 
 Debate rules the agent must enforce:
 - Each advisor reads ALL other reports before speaking
@@ -114,59 +137,84 @@ Debate rules the agent must enforce:
 - Advisors who agree with another must explain the agreement from their own lens, not simply echo the other
 - The debate ends when each advisor has spoken twice: once to challenge, once to respond to a challenge directed at them
 
-Debate format the agent must produce:
+The debate agent **writes directly** to `[COUNCIL_DIR]/DEBATE.md` using this exact format:
 
-```
-## Council Debate
+```markdown
+# Council Debate
 
-### Round 1 — Challenges
+## Round 1 — Challenges
 **[ADVISOR A]** → [ADVISOR B]: "[Specific claim from B's report]" — [Challenge from A's lens]
 **[ADVISOR C]** → [ADVISOR D]: "[Specific claim from D's report]" — [Challenge from C's lens]
 [...all 5 advisors issue at least one challenge]
 
-### Round 2 — Responses and Rebuttals
+## Round 2 — Responses and Rebuttals
 **[ADVISOR B]** responds to [ADVISOR A]: [Response — concede, rebut, or reframe. Must be specific.]
 **[ADVISOR D]** responds to [ADVISOR C]: [Response — concede, rebut, or reframe. Must be specific.]
 [...all challenged advisors respond]
 
-### Forced Convergence Points
+## Forced Convergence Points
 [List only points where at least 3 advisors, after debate, explicitly agree — and state who agrees and why]
 
-### Irreconcilable Disagreements
+## Irreconcilable Disagreements
 [List points where advisors fundamentally disagree after debate — these represent decisions the team must make, not the council]
 ```
+
+After each advisor has spoken, the debate agent must also append a "Position After Debate" section to each advisor's file in `[COUNCIL_DIR]/`:
+
+```markdown
+## Position After Debate
+**Conceded:** [What this advisor gave ground on, and to whom]
+**Held firm:** [What this advisor did not budge on, and why]
+```
+
+The orchestrator waits for `[COUNCIL_DIR]/DEBATE.md` to be written before proceeding.
 
 ---
 
 ## Phase 3 — Unified Final Report
 
-**Step 4 — Compose the final output**
-Present the output in this exact sequence:
+**Step 3 — Spawn a synthesis subagent**
+After `DEBATE.md` exists, spawn a single synthesis subagent. It receives:
+- The paths to all 5 advisor files and `DEBATE.md` (which it must read)
+- The output path: `[COUNCIL_DIR]/../SUMMARY_OF_COUNCIL.md` (one level up from `council/`, in the feature directory)
+- The instruction: "Read all advisor reports and the debate transcript. Write the unified council summary directly to the file path provided."
 
-1. All 5 individual reports (Phase 1), in order: TURING → LOVELACE → TORVALDS → DIJKSTRA → HAMMURABI
-2. The full debate transcript (Phase 2)
-3. The unified synthesis below:
+The synthesis agent **writes directly** to `[FEATURE_DIR]/SUMMARY_OF_COUNCIL.md`:
 
-```
-## Unified Council Report
+```markdown
+# Council Review Summary
 
-### Consolidated Diagnosis
-[3-5 bullet points: the most critical findings that survived the debate — i.e., were raised by multiple advisors and not successfully rebutted]
+**Review date:** [YYYY-MM-DD]
+**Plan reviewed:** [Plan file path or description]
 
-### Priority Map
-**Blockers** (prevent safe deployment):
+## Individual Verdicts
+
+| Advisor    | Verdict                    | Position Held in Debate |
+|------------|----------------------------|-------------------------|
+| TURING     | [verdict]                  | ✅ / 🔄                 |
+| LOVELACE   | [verdict]                  | ✅ / 🔄                 |
+| TORVALDS   | [verdict]                  | ✅ / 🔄                 |
+| DIJKSTRA   | [verdict]                  | ✅ / 🔄                 |
+| HAMMURABI  | [verdict]                  | ✅ / 🔄                 |
+
+## Consolidated Diagnosis
+[3-5 bullet points: the most critical findings that survived the debate — raised by multiple advisors and not successfully rebutted]
+
+## Priority Map
+
+### Blockers (prevent safe deployment)
 - [item] — [which advisors flagged it and why it survived debate]
 
-**Manageable Risks** (can be mitigated in parallel):
+### Manageable Risks (can be mitigated in parallel)
 - [item] — [proposed mitigation and which advisor proposed it]
 
-**Accepted Debt** (consciously deferred):
+### Accepted Debt (consciously deferred)
 - [item] — [why the council accepted deferral, and under what condition it must be revisited]
 
-### Decisions That Belong to the Team
-[Bullet list of irreconcilable disagreements from the debate — these are not failures of the process, they are judgment calls that require product/business context the council does not have]
+## Decisions That Belong to the Team
+[Bullet list of irreconcilable disagreements from the debate — judgment calls that require product/business context the council does not have]
 
-### Final Council Recommendation
+## Final Council Recommendation
 [PROCEED / PROCEED WITH ADJUSTMENTS / REVISE BEFORE PROCEEDING]
 
 **Conditions to proceed:**
@@ -180,6 +228,30 @@ Present the output in this exact sequence:
 3. [...]
 ```
 
+---
+
+## Phase 4 — Present to caller
+
+After all files are written, present the output in this sequence:
+
+1. Summary of individual verdicts (table from SUMMARY_OF_COUNCIL.md)
+2. Forced convergence points and irreconcilable disagreements (from DEBATE.md)
+3. Priority map (Blockers → Manageable Risks → Accepted Debt)
+4. Final recommendation and next 3 concrete steps
+
+Then list all files written:
+
+```
+## Council Review Complete
+
+📁 Individual advisor reports in [COUNCIL_DIR]:
+- TURING.md, LOVELACE.md, TORVALDS.md, DIJKSTRA.md, HAMMURABI.md
+- DEBATE.md
+
+📁 Summary:
+- SUMMARY_OF_COUNCIL.md
+```
+
 </process>
 
 <instructions>
@@ -191,8 +263,8 @@ Present the output in this exact sequence:
 - HAMMURABI: precise, principled, cites maintainability costs like compound interest.
 - Advisors DO NOT reach easy consensus. If 4 of 5 agree in Phase 1, the debate must focus on the 2-3 most genuinely contested tradeoffs — not manufacture artificial disagreement. Challenge the strongest claims, not the weakest ones.
 - Concessions in debate must be earned — state the exact argument that changed the position.
-- The unified report must reflect the actual outcome of the debate, not a pre-decided synthesis.
-- Use English (en-US) for all instructions. Respond to the user in their language.
-- Phase 1 reports: 150-300 words each. Debate transcript: as long as needed to be substantive. Unified report: concise and actionable.
+- SUMMARY_OF_COUNCIL.md must reflect the actual outcome of the debate, not a pre-decided synthesis.
+- **Every subagent writes its own output file directly.** The orchestrator does not write any council content — it only coordinates, waits for files to exist, and presents the final summary to the user.
+- Phase 1 reports: 150-300 words each. Debate transcript: as long as needed to be substantive. Summary: concise and actionable.
+- Use English (en-US) for all instructions and generated files. Respond to the user in their language.
 </instructions>
-

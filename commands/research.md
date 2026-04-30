@@ -1,6 +1,6 @@
 ---
 name: council:research
-description: Run the council's research phase on a feature or problem — without committing to a plan. Spawns parallel specialized agents, synthesizes findings into RESEARCH.md, and hands off to /council:plan when ready.
+description: Run the council's research phase on a feature or problem — without committing to a plan. Spawns parallel specialized agents, each writing their own findings file. A synthesis agent then produces RESEARCH.md. Hands off to /council:plan when ready.
 argument-hint: "<feature name or problem description>"
 allowed-tools: [Read, Write, Bash, Glob, Agent, WebSearch, AskUserQuestion]
 ---
@@ -25,7 +25,9 @@ Read $ARGUMENTS. If provided, use it as the working feature name (slugify for di
 > "What feature or problem should the council research?"
 
 Derive `FEATURE_SLUG` (e.g., "user-authentication") and `FEATURE_DIR` = `.council/[FEATURE_SLUG]`.
-Create the directory: `mkdir -p [FEATURE_DIR]`.
+Create the directory: `mkdir -p [FEATURE_DIR]/research/`.
+
+If `.council/PROJECT.md` exists, read it silently — its contents will be passed to every research agent to prevent re-discovering the project's stack and conventions.
 
 If `[FEATURE_DIR]/RESEARCH.md` already exists, tell the user:
 
@@ -79,20 +81,16 @@ Do you confirm this list? Would you like to add any agent with a specific object
 
 Wait for user confirmation. If the user adds custom agents, include them. If the user removes any, remove them. Only after explicit confirmation proceed to Step 3.
 
-Create the research directory: `mkdir -p [FEATURE_DIR]/research/`.
-
 ---
 
 ## Step 3 — Spawn parallel research agents
 
-Spawn all confirmed agents simultaneously. Each agent runs independently and receives:
+Spawn all confirmed agents simultaneously. Each agent:
 
-- The feature description
-- The user's answers from Step 1
-- Its own specific objective (not the full list — each agent only knows its own goal)
-- The instruction: "Be specific. Name actual products, cite actual patterns, reference real-world incidents or documented cases. No generic observations. No filler."
-
-Each agent writes its findings to `[FEATURE_DIR]/research/[agent-slug].md`:
+- Runs independently and receives only its own objective (not the full agent list)
+- Receives the feature description, the user's answers from Step 1, and PROJECT.md contents (if available, prefixed with: "Project context (do not re-research this):")
+- Receives the instruction: "Be specific. Name actual products, cite actual patterns, reference real-world incidents or documented cases. No generic observations. No filler."
+- **Writes its findings directly** to `[FEATURE_DIR]/research/[agent-slug].md` using this exact format:
 
 ```markdown
 # Research: [Objective Title]
@@ -113,11 +111,15 @@ Each agent writes its findings to `[FEATURE_DIR]/research/[agent-slug].md`:
 [Named sources, products, documentation, or incident reports consulted]
 ```
 
+Each agent is responsible for writing its own file. The orchestrator does not write research files — it only waits for all agents to complete.
+
 ---
 
 ## Step 4 — Synthesize into RESEARCH.md
 
-After all agents complete, a single synthesis agent reads all `[FEATURE_DIR]/research/*.md` files and produces `[FEATURE_DIR]/RESEARCH.md`:
+After all agents complete and their files exist in `[FEATURE_DIR]/research/`, spawn a single synthesis agent. It receives: the paths to all `[FEATURE_DIR]/research/*.md` files (which it must read), the feature description, and PROJECT.md (if available).
+
+The synthesis agent reads all individual research files and writes `[FEATURE_DIR]/RESEARCH.md`:
 
 ```markdown
 # Research: [Feature Name]
@@ -168,7 +170,7 @@ Ask:
 
 > "The council completed research with [N] agents. Is there any direction that doesn't make sense for your context, or something important that was missed that would be worth spawning an additional agent for?"
 
-If the user requests additional research, spawn the new agent(s), append findings to a new file in `research/`, and update RESEARCH.md before proceeding to the handoff.
+If the user requests additional research, spawn the new agent(s) — each writes its own file to `research/[agent-slug].md` — then spawn a new synthesis agent to update RESEARCH.md before proceeding to the handoff.
 
 ---
 
@@ -196,9 +198,9 @@ Show the user:
 - Questions are asked in a single message — not one at a time.
 - The user's answers must visibly influence which agents are spawned and what they focus on.
 - Each agent receives only its own objective — not the full agent list. Agents do not know what the others are researching.
+- **Each research agent writes its own file.** The orchestrator does not write individual research files. Only the synthesis agent writes RESEARCH.md.
 - Files are always written to `.council/[FEATURE_SLUG]/` relative to the project root (current working directory).
-- If `RESEARCH.md` already exists, merge new findings rather than overwriting. Preserve prior insights.
+- If `RESEARCH.md` already exists, the synthesis agent merges new findings rather than overwriting. Preserve prior insights.
 - `/council:plan` will detect and use RESEARCH.md automatically — the planning phase will skip its own research step.
 - Use English (en-US) for all instructions and generated files. Respond to the user in their language.
 </instructions>
-
