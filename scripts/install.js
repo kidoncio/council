@@ -32,11 +32,12 @@ function install(local = false) {
 
 const local = process.argv.includes("--local");
 
-// postinstall fires on both `npm install -g` and `npx`.
-// Only run automatically on a true global install — skip for npx and local installs.
-if (require.main !== module) {
-  const isGlobal = process.env.npm_config_global === "true";
-  if (!isGlobal) process.exit(0);
+// When invoked as postinstall (no --local flag and no explicit CLI call),
+// only run for true global installs: npm_lifecycle_event === "postinstall"
+// and npm_config_global === "true". npx sets npm_config_global to undefined or "false".
+const isPostinstall = process.env.npm_lifecycle_event === "postinstall";
+if (isPostinstall && !local) {
+  if (process.env.npm_config_global !== "true") process.exit(0);
 }
 
 try {
