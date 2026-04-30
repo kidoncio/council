@@ -192,11 +192,3 @@ This context will guide the planning session — the council will use it to focu
 - DO: Listen, ask, and capture. The council plans in `/council:plan`.
 </anti_patterns>
 
-<success_criteria>
-- [ ] Feature name and directory established
-- [ ] User's goals captured in their own words
-- [ ] Constraints, current state, risks, and inspiration explored
-- [ ] Synthesis confirmed by user before writing
-- [ ] CONTEXT.md written to [FEATURE_DIR]
-- [ ] Clear handoff to /council:plan
-</success_criteria>

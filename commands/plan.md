@@ -37,131 +37,13 @@ Create the directory: `mkdir -p [FEATURE_DIR]`.
 
 ## Phase 1 — Research
 
-**Goal:** Understand how the market solves this problem. Surface prior art, patterns, and tradeoffs before designing anything — using parallel specialized agents, each focused on a distinct research angle.
+**Goal:** Understand how the market solves this problem. Surface prior art, patterns, and tradeoffs before designing anything.
 
-**Step 1.1 — Council interviews the user**
-Before researching, a single agent (acting as the unified council voice) must ask the user clarifying questions. The agent must NOT proceed until the user answers. Ask all questions in a single message:
+**Step 1.1 — Check for existing research**
+Check if `[FEATURE_DIR]/RESEARCH.md` exists.
 
-Questions the agent must always ask:
-
-1. What is the business context? (Who is the end user and what problem do they have today?)
-2. Is there a current solution (even manual or improvised) that users already use?
-3. Are there known technical constraints? (technology, required integrations, time limitations)
-4. Is there any product or market experience you admire that solves a similar problem?
-5. What defines "success" for this feature — what metric or behavior would change?
-
-Wait for user response before proceeding.
-
-**Step 1.2 — Define research agents and confirm with user**
-Based on the feature description and the user's answers, derive a list of focused research agents. Each agent has a single, specific objective — not a broad sweep. The default agents are:
-
-| Agent                     | Objective                                                                                                              |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `market-solutions`        | What existing products solve this problem? How does each approach the solution? What are the differences between them? |
-| `ux-patterns`             | What UX patterns and interface conventions are used for this type of feature? What do users already expect?            |
-| `technical-approaches`    | What technical approaches exist to implement this? What are the tradeoffs of each?                                     |
-| `failure-modes`           | What are the documented anti-patterns, known failures, and common mistakes teams make when building this?              |
-| `security-and-compliance` | What security, privacy, or compliance risks are known for this type of feature?                                        |
-
-Present this list to the user **before spawning any agent**:
-
-```
-## Proposed Research Agents
-
-The council will spawn the following agents in parallel:
-
-1. **market-solutions** — [objective description]
-2. **ux-patterns** — [objective description]
-3. **technical-approaches** — [objective description]
-4. **failure-modes** — [objective description]
-5. **security-and-compliance** — [objective description]
-
-Do you confirm this list? Would you like to add any agent with a specific objective you consider important for this feature?
-```
-
-Wait for user confirmation. If the user adds custom agents, include them. If the user removes any, remove them. Only after explicit confirmation proceed to Step 1.3.
-
-Create the research directory: `mkdir -p [FEATURE_DIR]/research/`.
-
-**Step 1.3 — Spawn parallel research agents**
-Spawn all confirmed agents simultaneously. Each agent runs independently and receives:
-
-- The feature description
-- The user's answers from Step 1.1
-- Its own specific objective (not the full list — each agent only knows its own goal)
-- The instruction: "Be specific. Name actual products, cite actual patterns, reference real-world incidents or documented cases. No generic observations. No filler."
-
-Each agent writes its findings to `[FEATURE_DIR]/research/[agent-slug].md`:
-
-```markdown
-# Research: [Objective Title]
-
-**Agent:** [agent-slug]
-**Objective:** [The specific research objective]
-
-## Findings
-
-[Specific findings — named products, patterns, incidents, tradeoffs. Each point must be concrete and attributable.]
-
-## Implications for This Context
-
-[How these findings apply specifically to this feature, given the user's constraints and tech stack]
-
-## References and Sources
-
-[Named sources, products, documentation, or incident reports consulted]
-```
-
-**Step 1.4 — Synthesize into RESEARCH.md**
-After all agents complete, a single synthesis agent reads all `[FEATURE_DIR]/research/*.md` files and produces `[FEATURE_DIR]/RESEARCH.md`:
-
-```markdown
-# Research: [Feature Name]
-
-## Executive Summary
-
-[3-5 bullet points: the most important findings across all research agents]
-
-## Market and Prior Art
-
-[From market-solutions agent — named products and their approaches]
-
-## UX Patterns
-
-[From ux-patterns agent]
-
-## Technical Approaches and Tradeoffs
-
-[From technical-approaches agent]
-
-## Anti-Patterns and Known Failures
-
-[From failure-modes agent]
-
-## Security and Compliance Risks
-
-[From security-and-compliance agent]
-
-## [Custom Agent Title, if any]
-
-[From custom agents added by user]
-
-## Consolidated Insights for This Context
-
-[Cross-cutting insights that emerge from reading all agents together — things no single agent would have seen alone]
-```
-
-**Step 1.5 — Present and validate**
-Show the user:
-
-- Which research files were created in `[FEATURE_DIR]/research/`
-- The executive summary from RESEARCH.md
-
-Ask:
-
-> "The council completed research with [N] agents. Is there any direction that doesn't make sense for your context, or something important that was missed that would be worth spawning an additional agent for?"
-
-If the user requests additional research, spawn the new agent(s), append findings to a new file in `research/`, and update RESEARCH.md before proceeding to Phase 2.
+- **If it exists:** Read it and tell the user: "I found existing research for this feature. Skipping Phase 1 and proceeding to UX mapping." Proceed directly to Phase 2.
+- **If it doesn't exist:** Run the full research process defined in `council:research` — interview the user, confirm agent list, spawn parallel agents, synthesize into RESEARCH.md, and validate with the user. Only proceed to Phase 2 after RESEARCH.md is written and validated.
 
 ---
 
@@ -188,55 +70,12 @@ Spawn a single UX agent. It receives: the feature description, research findings
 - Identify friction points and edge cases in each journey
 - Flag where the journey touches other system features (integration points)
 
-The agent writes to `[FEATURE_DIR]/UX.md`:
-
-```markdown
-# UX & User Journey: [Feature Name]
-
-## Personas
-
-### Persona 1: [Name] — [Role]
-
-**Context:** [Who they are, what they know, what they want]
-**Goal:** [What success looks like for them]
-
-### Persona 2: [Name] — [Role]
-
-**Context:** [...]
-**Goal:** [...]
-
-## Journeys
-
-### Journey: [Persona 1 Name] — [Scenario Title]
-
-**Entry point:** [Where/how they arrive at this feature]
-
-| Step | User Action | System Response | State        |
-| ---- | ----------- | --------------- | ------------ |
-| 1    | [...]       | [...]           | ✅ / ⚠️ / ❌ |
-
-...
-
-**Success state:** [What the user sees/feels when done]
-**Error states:** [What can go wrong and how the system responds]
-**Integration points:** [Other features/systems touched]
-
-### Journey: [Persona 2 Name] — [Scenario Title]
-
-[same structure]
-
-## Alternative Flows and Edge Cases
-
-[Bullet list of non-happy-path scenarios that must be handled]
-
-## Business Rules Identified
-
-[Bullet list of business rules surfaced by the journey mapping]
-
-## Open Questions
-
-[Questions that emerged that only the product owner can answer]
-```
+The agent writes to `[FEATURE_DIR]/UX.md` with:
+- At least 2 named personas (context + goal each)
+- A journey per persona: entry point → step table (User Action / System Response / State ✅⚠️❌) → success state → error states → integration points
+- Alternative flows and edge cases (bullet list)
+- Business rules identified (bullet list)
+- Open questions for the product owner
 
 **Step 2.3 — Present and validate**
 Show the user the persona journeys. Ask:
@@ -324,33 +163,7 @@ Then [expected outcome]
 
 ````
 
-The agent also writes `[FEATURE_DIR]/ROADMAP.md`:
-
-```markdown
-# Roadmap: [Feature Name]
-
-**Overall status:** 🔴 Not started
-
-## Progress
-
-| ID   | Task                    | Status       | Notes |
-|------|------------------------|--------------|-------|
-| T01  | [Task title]           | ⬜ Pending   |       |
-| T02  | [Task title]           | ⬜ Pending   |       |
-...
-
-## Status Legend
-- ⬜ Pending
-- 🔄 In progress
-- ✅ Done
-- ❌ Blocked
-
-## Execution History
-[Entries added by council:execute as tasks complete]
-
-## Next Step
-[T01] — [Task title]
-````
+The agent also writes `[FEATURE_DIR]/ROADMAP.md` with: overall status (🔴 Not started), a progress table (ID / Task / Status ⬜🔄✅❌ / Notes), status legend, empty Execution History section, and Next Step pointing to T01.
 
 **Step 3.2 — Present to user**
 Show the task list and ask:
@@ -379,91 +192,10 @@ After the 5 independent reports are produced (Phase 1 of the council review), wr
 - `[FEATURE_DIR]/council/DIJKSTRA.md`
 - `[FEATURE_DIR]/council/HAMMURABI.md`
 
-Each file follows this structure:
-
-```markdown
-# [ADVISOR NAME] — [Role] — Plan Review: [Feature Name]
-
-## Overview
-
-[How this advisor reads the plan]
-
-## Pros
-
-[Pros from their report]
-
-## Cons & Risks
-
-[Cons and risks from their report]
-
-## Critical Questions
-
-[Their critical questions]
-
-## Verdict
-
-[APPROVE / APPROVE WITH RESERVATIONS / REJECT] — [Justification]
-
-## Position After Debate
-
-[How their position evolved (or didn't) after the council debate — what they conceded, what they held firm on, and why]
-```
+Each file contains the advisor's full Phase 1 report plus a "Position After Debate" section describing what they conceded, held firm on, and why.
 
 **Step 4.3 — Write SUMMARY_OF_COUNCIL.md**
-After the full council review (reports + debate + unified report), write `[FEATURE_DIR]/SUMMARY_OF_COUNCIL.md`:
-
-```markdown
-# Council Summary — [Feature Name]
-
-**Review date:** [DATE]
-
-## Individual Verdicts
-
-| Advisor   | Verdict   | Position Held in Debate?        |
-| --------- | --------- | ------------------------------- |
-| TURING    | [verdict] | ✅ Held / 🔄 Partially conceded |
-| LOVELACE  | [verdict] | [same]                          |
-| TORVALDS  | [verdict] | [same]                          |
-| DIJKSTRA  | [verdict] | [same]                          |
-| HAMMURABI | [verdict] | [same]                          |
-
-## Consolidated Diagnosis
-
-[Top findings that survived the debate]
-
-## Priority Map
-
-### Blockers
-
-[Items that block safe execution]
-
-### Manageable Risks
-
-[Items with proposed mitigations]
-
-### Accepted Debt
-
-[Items consciously deferred, with revisit condition]
-
-## Decisions That Belong to the Team
-
-[Irreconcilable disagreements — judgment calls for the product owner]
-
-## Final Council Recommendation
-
-[PROCEED / PROCEED WITH ADJUSTMENTS / REVISE BEFORE PROCEEDING]
-
-**Conditions to proceed:**
-
-1. [Specific, testable condition]
-2. [...]
-
-**Next 3 concrete steps:**
-
-1. [Actionable step with owner type]
-2. [...]
-3. [...]
-```
+After the full council review (reports + debate + unified report), write `[FEATURE_DIR]/SUMMARY_OF_COUNCIL.md` with: review date, individual verdicts table (Advisor / Verdict / Position Held in Debate ✅🔄), consolidated diagnosis, priority map (Blockers / Manageable Risks / Accepted Debt), decisions that belong to the team, and final recommendation (PROCEED / PROCEED WITH ADJUSTMENTS / REVISE BEFORE PROCEEDING) with specific conditions and next 3 concrete steps.
 
 **Step 4.4 — Apply adjustments to plan**
 After writing the council files:
@@ -594,15 +326,3 @@ AVOID:  Plan 01 = All models
 
 </plan_quality_rules>
 
-<success_criteria>
-
-- [ ] User is asked clarifying questions before each phase
-- [ ] RESEARCH.md contains named products and specific technical tradeoffs
-- [ ] UX.md contains at least 2 personas with complete journey maps including error states
-- [ ] PLAN.md contains tasks with BDD acceptance criteria and estimates
-- [ ] PLAN.md includes a boundaries section
-- [ ] ROADMAP.md is initialized with all tasks in Pending status
-- [ ] Full council review (3-phase) is run on the plan
-- [ ] Blockers from council review are applied to PLAN.md before handoff
-- [ ] User receives a clear summary of files created and next step
-      </success_criteria>

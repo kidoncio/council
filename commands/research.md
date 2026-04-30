@@ -202,13 +202,3 @@ Show the user:
 - Use English (en-US) for all instructions and generated files. Respond to the user in their language.
 </instructions>
 
-<success_criteria>
-- [ ] User is asked clarifying questions before any agent is spawned
-- [ ] Agent list is presented to user and confirmed before spawning
-- [ ] All agents run in parallel
-- [ ] Each agent writes to its own file in `research/`
-- [ ] RESEARCH.md is synthesized from all agent outputs
-- [ ] RESEARCH.md contains named products, specific tradeoffs, and cross-cutting insights
-- [ ] User is offered the opportunity to request additional agents
-- [ ] Clear handoff to /council:plan is shown at the end
-</success_criteria>

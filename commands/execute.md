@@ -177,12 +177,3 @@ Suggested next steps:
 - Use English (en-US) for all instructions. Respond to the user in their language.
 </instructions>
 
-<success_criteria>
-- [ ] Plan files are loaded and current state is shown before any implementation
-- [ ] User confirms before each task starts
-- [ ] Each task is implemented strictly within its described scope
-- [ ] Boundaries from the plan are respected — DO NOT CHANGE files are never touched
-- [ ] ROADMAP.md is updated immediately after each task
-- [ ] Blocked tasks are reported with options — never silently worked around
-- [ ] Final report includes unverifiable criteria and open decisions
-</success_criteria>
