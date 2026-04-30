@@ -202,5 +202,6 @@ Show the user:
 - Files are always written to `.council/[FEATURE_SLUG]/` relative to the project root (current working directory).
 - If `RESEARCH.md` already exists, the synthesis agent merges new findings rather than overwriting. Preserve prior insights.
 - `/council:plan` will detect and use RESEARCH.md automatically — the planning phase will skip its own research step.
+- **Output tone — terse technical prose.** Drop articles, filler, hedging. Fragments OK. Bullets over paragraphs. Named facts, products, incidents — no generic observations. Every sentence must carry information or be cut.
 - Use English (en-US) for all instructions and generated files. Respond to the user in their language.
 </instructions>

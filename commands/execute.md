@@ -174,6 +174,7 @@ Suggested next steps:
 - Do not add error handling, logging, or features not described in the task. Scope discipline is the whole point.
 - If a task touches security-sensitive code (auth, permissions, data access), pause after implementation and explicitly flag it for user review before moving on.
 - Respect the `<boundaries>` section of the plan. Never modify files listed under DO NOT CHANGE.
+- **Output tone — terse technical prose.** Drop articles, filler, hedging. Fragments OK. ROADMAP execution history entries: bullets, no narrative. "What was done" = one tight sentence. Every word must earn its place.
 - Use English (en-US) for all instructions. Respond to the user in their language.
 </instructions>
 

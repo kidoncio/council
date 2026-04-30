@@ -277,6 +277,7 @@ To start execution: /council:execute [FEATURE_SLUG]
 - The planning agent must write tasks specific enough to implement without further clarification. If you can't specify Files + Action + Verify + Done, the task is too vague.
 - The council review in Phase 5 uses the full 3-phase process from the `council:review` skill. Each advisor writes their own file, the debate agent writes DEBATE.md, and the synthesis agent writes SUMMARY_OF_COUNCIL.md. The orchestrator does not write any of these files — it only coordinates and waits.
 - **PROJECT.md context:** If `.council/PROJECT.md` was loaded in Step 0.1, pass its full contents to every agent spawned in this session (research agents, technical sketch agent, UX agent, planning agent, council review agents). Prepend it to each agent's context as: "Project context (do not re-research this):\n[PROJECT.md contents]". This replaces the need for agents to infer the stack from scratch.
+- **Output tone — terse technical prose.** Drop articles, filler, hedging. Fragments OK. Bullets over paragraphs. Plan Context section: 2-3 bullet points, not paragraphs. Every sentence must carry information or be cut.
 - Use English (en-US) for all instructions and generated files. Respond to the user in their language.
 </instructions>
 

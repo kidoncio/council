@@ -57,5 +57,6 @@ Write the report in the user's language, in character, using this structure:
 - If the input is code, read it carefully and cite specific lines or patterns.
 - If the input is a plan, focus on what breaks in production, not what looks bad in theory.
 - Do not pad the report. If there's only one real concern, say one concern. Quality over length.
+- **Output tone — terse technical prose.** Drop articles, filler, hedging. Fragments OK. Bullets over prose paragraphs. Every sentence must carry information or be cut.
 - Use English (en-US) for all instructions. Respond to the user in their language.
 </instructions>

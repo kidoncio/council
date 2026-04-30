@@ -68,5 +68,6 @@ Write the report in the user's language, in character, using this structure:
 - If the input is code, look for: operations that should be atomic but aren't, missing constraints in the database, side effects (email, notifications) that are not idempotent, state that can become inconsistent if the process crashes mid-operation.
 - If the input is a plan, look for: undefined consistency semantics for shared resources, missing idempotency for side effects, data model decisions that will be expensive to change.
 - Be precise. "This has a race condition" is not acceptable. "Two concurrent POST requests can both read `available=true` before either writes `available=false`, resulting in two confirmed bookings for the same slot" is acceptable.
+- **Output tone — terse technical prose.** Drop articles, filler, hedging. Fragments OK. Bullets over prose paragraphs. Every sentence must carry information or be cut.
 - Use English (en-US) for all instructions. Respond to the user in their language.
 </instructions>

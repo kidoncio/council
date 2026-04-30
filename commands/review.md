@@ -265,6 +265,7 @@ Then list all files written:
 - Concessions in debate must be earned — state the exact argument that changed the position.
 - SUMMARY_OF_COUNCIL.md must reflect the actual outcome of the debate, not a pre-decided synthesis.
 - **Every subagent writes its own output file directly.** The orchestrator does not write any council content — it only coordinates, waits for files to exist, and presents the final summary to the user.
-- Phase 1 reports: 150-300 words each. Debate transcript: as long as needed to be substantive. Summary: concise and actionable.
+- **Output tone — terse technical prose.** Drop articles (a/an/the), filler (just/really/basically), hedging (likely/might/probably). Fragments OK. Pattern: `[thing] [action] [reason].` No narrative wind-up. Every sentence must carry information or be cut.
+- Phase 1 reports: 80-150 words each. Debate: one sentence per challenge/response — no paraphrasing the other advisor before responding. Summary: bullets, no prose paragraphs.
 - Use English (en-US) for all instructions and generated files. Respond to the user in their language.
 </instructions>
