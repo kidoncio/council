@@ -33,6 +33,8 @@ Read $ARGUMENTS. If provided, use it as the working feature name (slugify for di
 Derive `FEATURE_SLUG` (e.g., "grooming-scheduling") and `FEATURE_DIR` = `.council/[FEATURE_SLUG]`.
 Create the directory: `mkdir -p [FEATURE_DIR]`.
 
+If `[FEATURE_DIR]/CONTEXT.md` exists, read it silently — it contains goals and constraints from a prior `/council:discuss` session and must be passed to every agent as additional context.
+
 **Step 0.1 — Load or initialize PROJECT.md**
 Check if `.council/PROJECT.md` exists.
 
@@ -113,6 +115,7 @@ Spawn a single UX agent. It receives: the feature description, RESEARCH.md, TECH
 - Flag where the journey touches other system features (integration points)
 
 The agent writes to `[FEATURE_DIR]/UX.md` with:
+
 - At least 2 named personas (context + goal each)
 - A journey per persona: entry point → step table (User Action / System Response / State ✅⚠️❌) → success state → error states → integration points
 - Alternative flows and edge cases (bullet list)
@@ -133,7 +136,7 @@ Incorporate feedback into UX.md before proceeding.
 **Goal:** Translate research, technical constraints, and UX into a concrete, sequenced implementation plan.
 
 **Step 4.1 — Planning agent**
-Spawn a single planning agent. It receives: RESEARCH.md, TECHNICAL_SKETCH.md, UX.md, the user's context, and these constraints:
+Spawn a single planning agent. It receives: PROJECT.md, CONTEXT.md, RESEARCH.md, TECHNICAL_SKETCH.md, UX.md, the user's context, and these constraints:
 
 > Create a development plan that a developer can follow without needing further clarification. Each task must be specific enough to estimate. The plan must respect the hard constraints from TECHNICAL_SKETCH.md and the business rules and edge cases surfaced in UX.md. Prefer sequencing that delivers a working slice end-to-end before adding complexity.
 >
@@ -148,7 +151,7 @@ The agent writes to `[FEATURE_DIR]/PLAN.md` (or PLAN-01.md etc.):
 
 ## Context
 
-[1 paragraph: what we're building, why, and what research/technical constraints/UX informed this plan]
+[1-2 paragraphs: what we're building, why, and what research/technical constraints/UX informed this plan]
 
 ## Dependencies and Prerequisites
 
@@ -202,8 +205,6 @@ Then [expected outcome]
 ## Identified Risks
 
 [Risks surfaced by research or UX that the implementation must account for]
-
-````
 
 The agent also writes `[FEATURE_DIR]/ROADMAP.md` with: overall status (🔴 Not started), a progress table (ID / Task / Status ⬜🔄✅❌ / Notes), status legend, empty Execution History section, and Next Step pointing to T01.
 
@@ -306,22 +307,7 @@ Then [expected outcome]
 
 ## Boundaries Section
 
-Plans include explicit boundaries:
-
-```markdown
-<boundaries>
-## DO NOT CHANGE
-- database/migrations/* (schema locked for this phase)
-- src/lib/auth.ts (auth system stable)
-
-## SCOPE LIMITS
-
-- This plan creates API only - no UI
-- Do not add new dependencies
-  </boundaries>
-```
-
-Boundaries prevent scope creep by making off-limits areas explicit.
+The `<boundaries>` block in PLAN.md prevents scope creep by making off-limits files and limits explicit. Always include it — even if minimal.
 
 ## Sizing Guidance
 

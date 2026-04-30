@@ -27,6 +27,8 @@ Read $ARGUMENTS. If provided, use it as the working feature name (slugify for di
 Derive `FEATURE_SLUG` (e.g., "user-authentication") and `FEATURE_DIR` = `.council/[FEATURE_SLUG]`.
 Create the directory: `mkdir -p [FEATURE_DIR]`.
 
+If `.council/PROJECT.md` exists, read it silently — its contents will be passed to every research agent to prevent re-discovering the project's stack and conventions.
+
 If `[FEATURE_DIR]/RESEARCH.md` already exists, tell the user:
 
 > "I found existing research for this feature. I'll run new agents and merge the findings into RESEARCH.md."
@@ -90,6 +92,7 @@ Spawn all confirmed agents simultaneously. Each agent runs independently and rec
 - The feature description
 - The user's answers from Step 1
 - Its own specific objective (not the full list — each agent only knows its own goal)
+- PROJECT.md contents if available, prefixed with: "Project context (do not re-research this):"
 - The instruction: "Be specific. Name actual products, cite actual patterns, reference real-world incidents or documented cases. No generic observations. No filler."
 
 Each agent writes its findings to `[FEATURE_DIR]/research/[agent-slug].md`:
