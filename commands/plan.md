@@ -55,7 +55,7 @@ Check if `.council/PROJECT.md` exists.
 Check if `[FEATURE_DIR]/RESEARCH.md` exists.
 
 - **If it exists:** Read it and tell the user: "I found existing research for this feature. Skipping Phase 1 and proceeding to UX mapping." Proceed directly to Phase 2.
-- **If it doesn't exist:** Run the full research process defined in `council:research` — interview the user, confirm agent list, spawn parallel agents, synthesize into RESEARCH.md, and validate with the user. Only proceed to Phase 2 after RESEARCH.md is written and validated.
+- **If it doesn't exist:** Run `/council:research [FEATURE_SLUG]`. Only proceed to Phase 2 after it completes and RESEARCH.md exists.
 
 ---
 
