@@ -77,6 +77,12 @@ Then open Claude Code and run your first plan:
 
 ## Commands
 
+### Setup
+
+| Command          | What it does                                                                                                                                                          |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/council:init`  | Reads your project's existing files (`CLAUDE.md`, `AGENTS.md`, `README.md`, `package.json`, etc.) and asks a few targeted questions to write `.council/PROJECT.md` — a stable snapshot of your stack, structure, and conventions that every subsequent council agent uses as shared context. Run once per project. |
+
 ### Planning
 
 The commands are designed to run in sequence — but each one is independently useful. You end up with a plan your whole team can poke holes in, backed by research and a full adversarial review.
@@ -88,7 +94,7 @@ The commands are designed to run in sequence — but each one is independently u
 | `/council:plan`     | 4-phase structured planning: research → UX mapping → task plan → adversarial council review. Produces a complete file set in `.council/[feature]/`. |
 | `/council:execute`  | Reads `PLAN.md`, implements tasks in dependency order, and updates `ROADMAP.md` after each one. Pauses for input when blocked or ambiguous.         |
 
-`/council:plan` detects and reuses an existing `RESEARCH.md` automatically — no duplicate work.
+`/council:plan` detects and reuses an existing `RESEARCH.md` automatically — no duplicate work. If `.council/PROJECT.md` exists, it is injected into every agent's context automatically.
 
 ### Council Reviews
 
@@ -133,6 +139,7 @@ Plans are written to `.council/[feature-slug]/` inside your project. Everything 
 
 ```
 .council/
+├── PROJECT.md           ← project snapshot: stack, structure, conventions (from /init)
 └── my-feature/
     ├── CONTEXT.md           ← goals and constraints (from /discuss)
     ├── RESEARCH.md          ← synthesized research (from /research or /plan)
@@ -158,11 +165,13 @@ Plans are written to `.council/[feature-slug]/` inside your project. Everything 
 
 ## Install
 
-### npm (recommended)
+### Global — available in every project
 
 ```bash
 npm install -g @kidoncio/council
 ```
+
+`postinstall` copies the commands to `~/.claude/commands/council/` automatically.
 
 To uninstall:
 
@@ -170,6 +179,20 @@ To uninstall:
 council uninstall
 # or
 npm uninstall -g @kidoncio/council
+```
+
+### Project — scoped to one repo
+
+Install into `.claude/commands/council/` inside the current directory. Commit it to version-control your council commands alongside the project.
+
+```bash
+npx @kidoncio/council install --local
+```
+
+To uninstall:
+
+```bash
+npx @kidoncio/council uninstall --local
 ```
 
 ### curl

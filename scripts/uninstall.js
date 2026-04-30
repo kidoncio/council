@@ -4,20 +4,26 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
-const DEST_DIR = path.join(os.homedir(), ".claude", "commands", "council");
+function uninstall(local = false) {
+  const dest = local
+    ? path.join(process.cwd(), ".claude", "commands", "council")
+    : path.join(os.homedir(), ".claude", "commands", "council");
 
-function uninstall() {
-  if (!fs.existsSync(DEST_DIR)) {
-    console.log("council is not installed — nothing to remove.");
+  if (!fs.existsSync(dest)) {
+    const scope = local ? "project" : "global";
+    console.log(`council is not installed (${scope}) — nothing to remove.`);
     return;
   }
 
-  fs.rmSync(DEST_DIR, { recursive: true, force: true });
-  console.log(`\n✓ council: commands removed from ${DEST_DIR}\n`);
+  fs.rmSync(dest, { recursive: true, force: true });
+  const scope = local ? "project" : "global";
+  console.log(`\n✓ council: commands removed from ${dest} (${scope})\n`);
 }
 
+const local = process.argv.includes("--local");
+
 try {
-  uninstall();
+  uninstall(local);
 } catch (err) {
   console.error("council uninstall failed:", err.message);
   process.exit(1);

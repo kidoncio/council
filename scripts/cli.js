@@ -1,16 +1,21 @@
 #!/usr/bin/env node
 
+const fs = require("fs");
+const path = require("path");
+const os = require("os");
+
 const args = process.argv.slice(2);
 const command = args[0];
+const local = args.includes("--local");
 
 const help = `
 council — council of AI advisors for Claude Code
 
 Usage:
-  council install     Copy commands to ~/.claude/commands/council/
-  council uninstall   Remove commands from ~/.claude/commands/council/
-  council list        List installed commands
-  council --version   Print version
+  council install [--local]   Copy commands to ~/.claude/ (global) or .claude/ (project)
+  council uninstall [--local] Remove commands from the global or project install
+  council list                List installed commands (global and project)
+  council --version           Print version
 
 `;
 
@@ -36,19 +41,30 @@ if (command === "uninstall") {
 }
 
 if (command === "list") {
-  const fs = require("fs");
-  const path = require("path");
-  const os = require("os");
-  const dir = path.join(os.homedir(), ".claude", "commands", "council");
-  if (!fs.existsSync(dir)) {
+  const globalDir = path.join(os.homedir(), ".claude", "commands", "council");
+  const localDir = path.join(process.cwd(), ".claude", "commands", "council");
+
+  let found = false;
+
+  if (fs.existsSync(globalDir)) {
+    const files = fs.readdirSync(globalDir).filter((f) => f.endsWith(".md"));
+    console.log(`\nGlobal (${globalDir}):\n`);
+    for (const f of files) console.log(`  /council:${path.basename(f, ".md")}`);
+    found = true;
+  }
+
+  if (fs.existsSync(localDir)) {
+    const files = fs.readdirSync(localDir).filter((f) => f.endsWith(".md"));
+    console.log(`\nProject (${localDir}):\n`);
+    for (const f of files) console.log(`  /council:${path.basename(f, ".md")}`);
+    found = true;
+  }
+
+  if (!found) {
     console.log("council is not installed. Run: council install");
     process.exit(1);
   }
-  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".md"));
-  console.log(`\nInstalled commands (${dir}):\n`);
-  for (const f of files) {
-    console.log(`  /council:${path.basename(f, ".md")}`);
-  }
+
   console.log("");
   process.exit(0);
 }

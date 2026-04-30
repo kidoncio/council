@@ -4,33 +4,43 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
-const DEST_DIR = path.join(os.homedir(), ".claude", "commands", "council");
 const SRC_DIR = path.join(__dirname, "..", "commands");
 
-function install() {
-  if (!fs.existsSync(DEST_DIR)) {
-    fs.mkdirSync(DEST_DIR, { recursive: true });
+function install(local = false) {
+  const dest = local
+    ? path.join(process.cwd(), ".claude", "commands", "council")
+    : path.join(os.homedir(), ".claude", "commands", "council");
+
+  if (!fs.existsSync(dest)) {
+    fs.mkdirSync(dest, { recursive: true });
   }
 
   const files = fs.readdirSync(SRC_DIR).filter((f) => f.endsWith(".md"));
 
   for (const file of files) {
-    const src = path.join(SRC_DIR, file);
-    const dest = path.join(DEST_DIR, file);
-    fs.copyFileSync(src, dest);
+    fs.copyFileSync(path.join(SRC_DIR, file), path.join(dest, file));
   }
 
-  console.log(`\n✓ council: ${files.length} commands installed to ${DEST_DIR}\n`);
+  const scope = local ? "project" : "global";
+  console.log(`\n✓ council: ${files.length} commands installed to ${dest} (${scope})\n`);
   console.log("Available commands in Claude Code:");
   for (const file of files) {
-    const name = path.basename(file, ".md");
-    console.log(`  /council:${name}`);
+    console.log(`  /council:${path.basename(file, ".md")}`);
   }
   console.log("");
 }
 
+const local = process.argv.includes("--local");
+
+// postinstall fires on both `npm install -g` and `npx`.
+// Only run automatically on a true global install — skip for npx and local installs.
+if (require.main !== module) {
+  const isGlobal = process.env.npm_config_global === "true";
+  if (!isGlobal) process.exit(0);
+}
+
 try {
-  install();
+  install(local);
 } catch (err) {
   console.error("council install failed:", err.message);
   process.exit(1);

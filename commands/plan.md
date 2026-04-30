@@ -33,6 +33,18 @@ Read $ARGUMENTS. If provided, use it as the working feature name (slugify for di
 Derive `FEATURE_SLUG` (e.g., "grooming-scheduling") and `FEATURE_DIR` = `.council/[FEATURE_SLUG]`.
 Create the directory: `mkdir -p [FEATURE_DIR]`.
 
+**Step 0.1 — Load or initialize PROJECT.md**
+Check if `.council/PROJECT.md` exists.
+
+- **If it exists:** Read it silently. Its contents are now available as shared project context for every agent spawned in this session. Do not show it to the user or comment on it unless something looks outdated.
+- **If it doesn't exist:** Tell the user:
+
+  > "I don't have a PROJECT.md for this project yet. This file gives every council agent instant context about your stack and conventions — so we don't re-discover them on every plan.
+  >
+  > Run `council:init` now to create it (takes ~2 minutes), or skip and I'll proceed without it."
+
+  Wait for the user's choice. If they choose to init, run the full `council:init` process, then continue with the plan. If they skip, proceed without PROJECT.md.
+
 ---
 
 ## Phase 1 — Research
@@ -238,6 +250,7 @@ To start execution: /council:execute [FEATURE_SLUG]
 - Files are always written to `.council/[FEATURE_SLUG]/` relative to the project root (current working directory).
 - The planning agent must write tasks specific enough to implement without further clarification. If you can't specify Files + Action + Verify + Done, the task is too vague.
 - The council review in Phase 4 uses the full 3-phase process (reports → debate → unified report) from the `council:review` skill — do not abbreviate it.
+- **PROJECT.md context:** If `.council/PROJECT.md` was loaded in Step 0.1, pass its full contents to every agent spawned in this session (research agents, UX agent, planning agent, council review agents). Prepend it to each agent's context as: "Project context (do not re-research this):\n[PROJECT.md contents]". This replaces the need for agents to infer the stack from scratch.
 - Use English (en-US) for all instructions and generated files. Respond to the user in their language.
 </instructions>
 
