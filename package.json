@@ -1,0 +1,23 @@
+{
+  "name": "kidoncio",
+  "version": "1.0.0",
+  "description": "A council of 5 AI advisors for Claude Code — plan, review, and execute features with adversarial validation.",
+  "keywords": ["claude", "claude-code", "slash-commands", "ai-advisor", "planning"],
+  "author": "Lucas Kidoncio <lucas.kidoncio@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kidoncio/kidoncio-commands.git"
+  },
+  "files": [
+    "commands/",
+    "install.sh",
+    "uninstall.sh"
+  ],
+  "scripts": {
+    "postinstall": "node scripts/install.js"
+  },
+  "bin": {
+    "kidoncio": "scripts/cli.js"
+  }
+}
