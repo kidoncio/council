@@ -25,7 +25,7 @@ Read $ARGUMENTS. If provided, use as feature name (slugify: lowercase, hyphens).
 Derive `FEATURE_SLUG` and `FEATURE_DIR` = `.council/[FEATURE_SLUG]`.
 Run: `mkdir -p [FEATURE_DIR]`.
 
-If `.council/PROJECT.md` exists, read it silently — use it to ask more precise questions about constraints and integration points throughout the discussion.
+In parallel, check and read all of the following if they exist: `.council/PROJECT.md`, `CLAUDE.md`, `AGENTS.md`. Read them silently — use their combined contents to ask more precise questions about constraints and integration points throughout the discussion.
 
 If `FEATURE_DIR/CONTEXT.md` exists, read it and say: "I found a prior discussion context. I'll continue from where we left off."
 

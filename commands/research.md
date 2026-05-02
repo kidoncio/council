@@ -27,7 +27,7 @@ Read $ARGUMENTS. If provided, use it as the working feature name (slugify for di
 Derive `FEATURE_SLUG` (e.g., "user-authentication") and `FEATURE_DIR` = `.council/[FEATURE_SLUG]`.
 Create the directory: `mkdir -p [FEATURE_DIR]/research/`.
 
-If `.council/PROJECT.md` exists, read it silently — its contents will be passed to every research agent to prevent re-discovering the project's stack and conventions.
+In parallel, check and read all of the following if they exist: `.council/PROJECT.md`, `CLAUDE.md`, `AGENTS.md`. Read them silently — their combined contents will be passed to every research agent to prevent re-discovering the project's stack and conventions.
 
 If `[FEATURE_DIR]/RESEARCH.md` already exists, tell the user:
 
@@ -88,7 +88,7 @@ Wait for user confirmation. If the user adds custom agents, include them. If the
 Spawn all confirmed agents simultaneously. Each agent:
 
 - Runs independently and receives only its own objective (not the full agent list)
-- Receives the feature description, the user's answers from Step 1, and PROJECT.md contents (if available, prefixed with: "Project context (do not re-research this):")
+- Receives the feature description, the user's answers from Step 1, and project context (PROJECT.md, CLAUDE.md, AGENTS.md — whichever exist, combined and prefixed with: "Project context (do not re-research this):")
 - Receives the instruction: "Be specific. Name actual products, cite actual patterns, reference real-world incidents or documented cases. No generic observations. No filler."
 - **Writes its findings directly** to `[FEATURE_DIR]/research/[agent-slug].md` using this exact format:
 
@@ -117,7 +117,7 @@ Each agent is responsible for writing its own file. The orchestrator does not wr
 
 ## Step 4 — Synthesize into RESEARCH.md
 
-After all agents complete and their files exist in `[FEATURE_DIR]/research/`, spawn a single synthesis agent. It receives: the paths to all `[FEATURE_DIR]/research/*.md` files (which it must read), the feature description, and PROJECT.md (if available).
+After all agents complete and their files exist in `[FEATURE_DIR]/research/`, spawn a single synthesis agent. It receives: the paths to all `[FEATURE_DIR]/research/*.md` files (which it must read), the feature description, and project context (PROJECT.md, CLAUDE.md, AGENTS.md — whichever exist).
 
 The synthesis agent reads all individual research files and writes `[FEATURE_DIR]/RESEARCH.md`:
 

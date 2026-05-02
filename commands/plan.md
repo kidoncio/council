@@ -35,11 +35,10 @@ Create the directory: `mkdir -p [FEATURE_DIR]`.
 
 If `[FEATURE_DIR]/CONTEXT.md` exists, read it silently — it contains goals and constraints from a prior `/council:discuss` session and must be passed to every agent as additional context.
 
-**Step 0.1 — Load or initialize PROJECT.md**
-Check if `.council/PROJECT.md` exists.
+**Step 0.1 — Load project context**
+In parallel, check and read all of the following if they exist: `.council/PROJECT.md`, `CLAUDE.md`, `AGENTS.md`. Read them silently — their combined contents are now available as shared project context for every agent spawned in this session. Do not show them to the user or comment on them unless something looks outdated.
 
-- **If it exists:** Read it silently. Its contents are now available as shared project context for every agent spawned in this session. Do not show it to the user or comment on it unless something looks outdated.
-- **If it doesn't exist:** Tell the user:
+If `.council/PROJECT.md` does not exist, tell the user:
 
   > "I don't have a PROJECT.md for this project yet. This file gives every council agent instant context about your stack and conventions — so we don't re-discover them on every plan.
   >
@@ -72,7 +71,7 @@ Check if `[FEATURE_DIR]/TECHNICAL_SKETCH.md` exists.
 - **If it doesn't exist:** Proceed to Step 2.2.
 
 **Step 2.2 — Technical sketch agent**
-Spawn a single technical sketch agent. It receives: RESEARCH.md, the feature description, and PROJECT.md (if available). It must produce a lean technical sketch — not a full plan, just enough to bound what UX can and cannot promise.
+Spawn a single technical sketch agent. It receives: RESEARCH.md, the feature description, and project context (PROJECT.md, CLAUDE.md, AGENTS.md — whichever exist). It must produce a lean technical sketch — not a full plan, just enough to bound what UX can and cannot promise.
 
 The agent writes to `[FEATURE_DIR]/TECHNICAL_SKETCH.md` with:
 
@@ -136,7 +135,7 @@ Incorporate feedback into UX.md before proceeding.
 **Goal:** Translate research, technical constraints, and UX into a concrete, sequenced implementation plan.
 
 **Step 4.1 — Planning agent**
-Spawn a single planning agent. It receives: PROJECT.md, CONTEXT.md, RESEARCH.md, TECHNICAL_SKETCH.md, UX.md, the user's context, and these constraints:
+Spawn a single planning agent. It receives: project context (PROJECT.md, CLAUDE.md, AGENTS.md — whichever exist), CONTEXT.md, RESEARCH.md, TECHNICAL_SKETCH.md, UX.md, the user's context, and these constraints:
 
 > Create a development plan that a developer can follow without needing further clarification. Each task must be specific enough to estimate. The plan must respect the hard constraints from TECHNICAL_SKETCH.md and the business rules and edge cases surfaced in UX.md. Prefer sequencing that delivers a working slice end-to-end before adding complexity.
 >
@@ -276,7 +275,7 @@ To start execution: /council:execute [FEATURE_SLUG]
 - Files are always written to `.council/[FEATURE_SLUG]/` relative to the project root (current working directory).
 - The planning agent must write tasks specific enough to implement without further clarification. If you can't specify Files + Action + Verify + Done, the task is too vague.
 - The council review in Phase 5 uses the full 3-phase process from the `council:review` skill. Each advisor writes their own file, the debate agent writes DEBATE.md, and the synthesis agent writes SUMMARY_OF_COUNCIL.md. The orchestrator does not write any of these files — it only coordinates and waits.
-- **PROJECT.md context:** If `.council/PROJECT.md` was loaded in Step 0.1, pass its full contents to every agent spawned in this session (research agents, technical sketch agent, UX agent, planning agent, council review agents). Prepend it to each agent's context as: "Project context (do not re-research this):\n[PROJECT.md contents]". This replaces the need for agents to infer the stack from scratch.
+- **Project context:** If any of `.council/PROJECT.md`, `CLAUDE.md`, or `AGENTS.md` were loaded in Step 0.1, pass their combined contents to every agent spawned in this session (research agents, technical sketch agent, UX agent, planning agent, council review agents). Prepend them to each agent's context as: "Project context (do not re-research this):\n[combined contents]". This replaces the need for agents to infer the stack from scratch.
 - **Output tone — terse technical prose.** Drop articles, filler, hedging. Fragments OK. Bullets over paragraphs. Plan Context section: 2-3 bullet points, not paragraphs. Every sentence must carry information or be cut.
 - Use English (en-US) for all instructions and generated files. Respond to the user in their language.
 </instructions>
