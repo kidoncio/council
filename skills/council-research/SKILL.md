@@ -62,11 +62,14 @@ Based on the feature description and the user's answers, derive a list of focuse
 
 | Agent                     | Objective                                                                                                              |
 | ------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `codebase-survey`         | What does the *current* codebase already do that touches this feature? Map files, modules, data models, and flows. Produce a Mermaid diagram of the relevant subsystem. |
 | `market-solutions`        | What existing products solve this problem? How does each approach the solution? What are the differences between them? |
 | `ux-patterns`             | What UX patterns and interface conventions are used for this type of feature? What do users already expect?            |
 | `technical-approaches`    | What technical approaches exist to implement this? What are the tradeoffs of each?                                     |
 | `failure-modes`           | What are the documented anti-patterns, known failures, and common mistakes teams make when building this?              |
 | `security-and-compliance` | What security, privacy, or compliance risks are known for this type of feature?                                        |
+
+`codebase-survey` is **mandatory** and runs first-class alongside the others. Its job is to anchor every later phase in what already exists — never let the council plan in the void.
 
 Present this list to the user **before spawning any agent**:
 
@@ -75,11 +78,12 @@ Present this list to the user **before spawning any agent**:
 
 The council will spawn the following agents in parallel:
 
-1. **market-solutions** — [objective description]
-2. **ux-patterns** — [objective description]
-3. **technical-approaches** — [objective description]
-4. **failure-modes** — [objective description]
-5. **security-and-compliance** — [objective description]
+1. **codebase-survey** — map what already exists in this repo + diagram
+2. **market-solutions** — [objective description]
+3. **ux-patterns** — [objective description]
+4. **technical-approaches** — [objective description]
+5. **failure-modes** — [objective description]
+6. **security-and-compliance** — [objective description]
 
 Do you confirm this list? Would you like to add any agent with a specific objective you consider important for this feature?
 ```
@@ -95,6 +99,7 @@ Spawn all confirmed agents simultaneously. Each agent:
 - Runs independently and receives only its own objective (not the full agent list)
 - Receives the feature description, the user's answers from Step 1, and project context (PROJECT.md, CLAUDE.md, AGENTS.md — whichever exist, combined and prefixed with: "Project context (do not re-research this):")
 - Receives the instruction: "Be specific. Name actual products, cite actual patterns, reference real-world incidents or documented cases. No generic observations. No filler."
+- **If a Mermaid diagram would help the reader** (any agent that finds structural relationships — flows, dependencies, data shapes, sequences), the agent MUST include one in its findings. Use `flowchart`, `sequenceDiagram`, `classDiagram`, or `erDiagram` — whichever fits.
 - **Writes its findings directly** to `[FEATURE_DIR]/research/[agent-slug].md` using this exact format:
 
 ```markdown
@@ -107,14 +112,37 @@ Spawn all confirmed agents simultaneously. Each agent:
 
 [Specific findings — named products, patterns, incidents, tradeoffs. Each point must be concrete and attributable.]
 
+## Diagram (if applicable)
+
+```mermaid
+[A diagram that makes the findings easier to scan: flowchart, sequenceDiagram, classDiagram, or erDiagram. Skip this section only if no structural relationship is involved.]
+```
+
 ## Implications for This Context
 
 [How these findings apply specifically to this feature, given the user's constraints and tech stack]
 
 ## References and Sources
 
-[Named sources, products, documentation, or incident reports consulted]
+[Named sources, products, documentation, or incident reports consulted. For codebase-survey: file paths with line numbers.]
 ```
+
+### Special instructions for `codebase-survey`
+
+This agent does not search the web. It searches the *repository*. Its job:
+
+1. **Locate** every file/module that already touches the feature area (use Grep, Glob, Read).
+2. **Map** the data model: which tables, schemas, types, or DTOs are already defined.
+3. **Trace** the existing flow: entry points → services → persistence. Note what works and what is missing.
+4. **Produce a Mermaid diagram** showing the current subsystem (mandatory — not optional). Pick the diagram type that best fits:
+   - `flowchart` for control flow / module dependencies
+   - `sequenceDiagram` for request/response or event flow
+   - `erDiagram` for data models
+   - `classDiagram` for type hierarchies
+5. **Cite file paths with line numbers** in every finding (e.g., `server/api/grooming/index.ts:42`).
+6. **Surface gaps** — what is missing today vs. what the new feature needs.
+
+Output goes to `[FEATURE_DIR]/research/codebase-survey.md` with the standard format above. The diagram section is **required** for this agent.
 
 Each agent is responsible for writing its own file. The orchestrator does not write research files — it only waits for all agents to complete.
 
@@ -133,6 +161,20 @@ The synthesis agent reads all individual research files and writes `[FEATURE_DIR
 
 [3-5 bullet points: the most important findings across all research agents]
 
+## Codebase Today (from codebase-survey)
+
+[What already exists in this repo: the relevant files, modules, and data models. File paths with line numbers.]
+
+### Current Architecture
+
+```mermaid
+[The diagram from codebase-survey.md — copy verbatim. This is the anchor for the rest of the document.]
+```
+
+### Gaps vs. What This Feature Needs
+
+[Bullet list — what's missing today and must be built or changed.]
+
 ## Market and Prior Art
 
 [From market-solutions agent — named products and their approaches]
@@ -143,7 +185,7 @@ The synthesis agent reads all individual research files and writes `[FEATURE_DIR
 
 ## Technical Approaches and Tradeoffs
 
-[From technical-approaches agent]
+[From technical-approaches agent. Include any diagrams the agent produced.]
 
 ## Anti-Patterns and Known Failures
 
@@ -159,7 +201,7 @@ The synthesis agent reads all individual research files and writes `[FEATURE_DIR
 
 ## Consolidated Insights for This Context
 
-[Cross-cutting insights that emerge from reading all agents together — things no single agent would have seen alone]
+[Cross-cutting insights that emerge from reading all agents together — things no single agent would have seen alone. Tie market/UX patterns back to the codebase reality.]
 ```
 
 ---

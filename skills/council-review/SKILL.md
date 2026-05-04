@@ -184,54 +184,68 @@ After `DEBATE.md` exists, spawn a single synthesis subagent. It receives:
 - The output path: `[COUNCIL_DIR]/../SUMMARY_OF_COUNCIL.md` (one level up from `council/`, in the feature directory)
 - The instruction: "Read all advisor reports and the debate transcript. Write the unified council summary directly to the file path provided."
 
-The synthesis agent **writes directly** to `[FEATURE_DIR]/SUMMARY_OF_COUNCIL.md`:
+The synthesis agent **writes directly** to `[FEATURE_DIR]/SUMMARY_OF_COUNCIL.md`. The reader is a busy developer or PM. They should know in 60 seconds: *can we ship, what must change first, what's still open.* No paragraphs. No restating advisor reports. Lead with the verdict.
 
 ```markdown
-# Council Review Summary
+# Council Review
 
-**Review date:** [YYYY-MM-DD]
-**Plan reviewed:** [Plan file path or description]
+**Date:** [YYYY-MM-DD] · **Plan:** [path or one-line description]
 
-## Individual Verdicts
+## Verdict
+**[PROCEED / PROCEED WITH ADJUSTMENTS / REVISE BEFORE PROCEEDING]**
 
-| Advisor    | Verdict                    | Position Held in Debate |
-|------------|----------------------------|-------------------------|
-| TURING     | [verdict]                  | ✅ / 🔄                 |
-| LOVELACE   | [verdict]                  | ✅ / 🔄                 |
-| TORVALDS   | [verdict]                  | ✅ / 🔄                 |
-| DIJKSTRA   | [verdict]                  | ✅ / 🔄                 |
-| HAMMURABI  | [verdict]                  | ✅ / 🔄                 |
+[One sentence. Why this verdict, in plain language.]
 
-## Consolidated Diagnosis
-[3-5 bullet points: the most critical findings that survived the debate — raised by multiple advisors and not successfully rebutted]
+## What must change before we ship
+*(Blockers — fix these or stop.)*
 
-## Priority Map
+- [ ] [Specific, testable change] — flagged by [advisors]
+- [ ] [...]
 
-### Blockers (prevent safe deployment)
-- [item] — [which advisors flagged it and why it survived debate]
+*(Empty if none.)*
 
-### Manageable Risks (can be mitigated in parallel)
-- [item] — [proposed mitigation and which advisor proposed it]
+## What we'll watch as we ship
+*(Manageable risks — mitigate in parallel, don't block.)*
 
-### Accepted Debt (consciously deferred)
-- [item] — [why the council accepted deferral, and under what condition it must be revisited]
+- [Risk] → [mitigation, owner type if obvious]
+- [...]
 
-## Decisions That Belong to the Team
-[Bullet list of irreconcilable disagreements from the debate — judgment calls that require product/business context the council does not have]
+## What we're choosing to defer
+*(Accepted debt — revisit when [condition].)*
 
-## Final Council Recommendation
-[PROCEED / PROCEED WITH ADJUSTMENTS / REVISE BEFORE PROCEEDING]
+- [Item] — revisit when [condition]
+- [...]
 
-**Conditions to proceed:**
-1. [Specific, testable condition — not a vague principle]
-2. [...]
-3. [...]
+## Open questions for you
+*(The council can't answer these — product/business context required.)*
 
-**Next 3 concrete steps:**
-1. [Actionable step with owner type — e.g., "Backend: add UNIQUE constraint on (professional_id, scheduled_at) before migration runs"]
+- [Question]
+- [...]
+
+## How each advisor voted
+
+| Advisor    | Verdict | Held in debate? |
+|------------|---------|-----------------|
+| TURING     | [v]     | ✅ / 🔄         |
+| LOVELACE   | [v]     | ✅ / 🔄         |
+| TORVALDS   | [v]     | ✅ / 🔄         |
+| DIJKSTRA   | [v]     | ✅ / 🔄         |
+| HAMMURABI  | [v]     | ✅ / 🔄         |
+
+→ Full reports in `council/`. Debate transcript in `council/DEBATE.md`.
+
+## Next 3 steps
+1. [Action — concrete, with owner type]
 2. [...]
 3. [...]
 ```
+
+**UX writing rules for this file:**
+- Verdict first. Reader should not scroll to find it.
+- Headers are questions or outcomes ("What must change before we ship") — not jargon.
+- Bullets, not paragraphs. Each bullet stands alone.
+- Use checkboxes `[ ]` for blockers — they're action items, not analysis.
+- Keep it under one screen on a laptop. If it's longer, the synthesis is leaking detail that belongs in the per-advisor files.
 
 ---
 

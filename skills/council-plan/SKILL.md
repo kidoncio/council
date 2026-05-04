@@ -76,15 +76,46 @@ Check if `[FEATURE_DIR]/TECHNICAL_SKETCH.md` exists.
 - **If it doesn't exist:** Proceed to Step 2.2.
 
 **Step 2.2 — Technical sketch agent**
-Spawn a single technical sketch agent. It receives: RESEARCH.md, the feature description, and project context (PROJECT.md, CLAUDE.md, AGENTS.md — whichever exist). It must produce a lean technical sketch — not a full plan, just enough to bound what UX can and cannot promise.
+Spawn a single technical sketch agent. It receives: RESEARCH.md (including the `Codebase Today` section + diagram), the feature description, and project context (PROJECT.md, CLAUDE.md, AGENTS.md — whichever exist).
 
-The agent writes to `[FEATURE_DIR]/TECHNICAL_SKETCH.md` with:
+The sketch is about **design and architecture** — not low-level implementation. The reader is a developer or PM scanning the page in 90 seconds. They should walk away knowing: *what shape this feature has, where it lives in the system, what it touches.* No code blocks beyond signatures or types. No step-by-step instructions.
 
-- **Viable approaches** — 2-3 technical approaches that could implement this feature, each with a one-line tradeoff
-- **Chosen direction** — the recommended approach and why (informed by the project's stack and constraints from PROJECT.md)
-- **Hard constraints** — things the system cannot do or cannot easily change (e.g., "no real-time infra available", "auth model doesn't support multi-tenancy", "existing schema makes X expensive")
-- **Integration points** — existing systems, APIs, or data models this feature must work with
-- **What this rules out** — UX patterns or user promises that are technically infeasible given the constraints above
+The agent writes to `[FEATURE_DIR]/TECHNICAL_SKETCH.md` with this structure:
+
+```markdown
+# Technical Sketch: [Feature Name]
+
+## In one sentence
+[What this feature is, architecturally — not what it does for the user.]
+
+## How it fits
+
+```mermaid
+[A diagram showing where the feature sits in the existing system. Reuse / extend the codebase diagram from RESEARCH.md. Highlight new components.]
+```
+
+## Chosen direction
+[2-4 bullets: the architectural approach and the one-line reason for each major choice.]
+
+## Alternatives considered
+| Approach | Why not |
+|----------|---------|
+| [name]   | [one line] |
+| [name]   | [one line] |
+
+## Boundaries
+- **Touches:** [modules, tables, APIs the feature reads or writes]
+- **Owns:** [new modules, tables, endpoints the feature creates]
+- **Does not touch:** [areas explicitly left alone]
+
+## Hard constraints
+- [things the system cannot do or change easily — one line each]
+
+## What this rules out for UX
+- [UX promises that become infeasible given the constraints — one line each]
+```
+
+**Length target: under 1 page when rendered.** If a section needs more, the sketch is leaking into the plan — cut it.
 
 **Step 2.3 — Present and validate**
 Show the user the chosen direction and hard constraints. Ask:
@@ -142,73 +173,66 @@ Incorporate feedback into UX.md before proceeding.
 **Step 4.1 — Planning agent**
 Spawn a single planning agent. It receives: project context (PROJECT.md, CLAUDE.md, AGENTS.md — whichever exist), CONTEXT.md, RESEARCH.md, TECHNICAL_SKETCH.md, UX.md, the user's context, and these constraints:
 
-> Create a development plan that a developer can follow without needing further clarification. Each task must be specific enough to estimate. The plan must respect the hard constraints from TECHNICAL_SKETCH.md and the business rules and edge cases surfaced in UX.md. Prefer sequencing that delivers a working slice end-to-end before adding complexity.
+> Create a plan a developer can read in 2 minutes and execute without re-reading. Each task is one **vertical slice** — a thin end-to-end change a developer can finish, ship, and verify in isolation before the next slice starts.
 >
-> **Task discipline:** If you can't specify Files + Action + Verify + Done, the task is too vague.
+> The plan is a *map*, not a manual. Don't restate what TECHNICAL_SKETCH.md or UX.md already said. Don't paste code. Don't write paragraphs where bullets work. If a task can't be verified the moment it lands (a test passes, an endpoint responds, a screen renders), split or rewrite it.
 
-**Complexity threshold:** If the plan has more than 12 tasks or more than 3 distinct technical concerns (e.g., data model + API + UI + notifications), split into PLAN-01.md, PLAN-02.md, etc. Each file covers one coherent delivery slice.
+**Vertical slice rule:** every task touches as little as needed and is testable on completion. A migration that breaks the app until the next task lands is **not** a vertical slice. Prefer: small change end-to-end → verify → next change.
 
-The agent writes to `[FEATURE_DIR]/PLAN.md` (or PLAN-01.md etc.):
+**Complexity threshold:** more than 7 tasks or more than 2 distinct user-facing outcomes → split into PLAN-01.md, PLAN-02.md, etc. Each file covers one coherent delivery slice.
+
+The agent writes to `[FEATURE_DIR]/PLAN.md` (or PLAN-01.md etc.). **Length target: under 2 pages rendered.** Use this exact structure:
 
 ````markdown
 # Plan: [Feature Name]
 
-## Context
+## What & why
+[2-3 bullets. What ships, who benefits, what changes for them.]
 
-[1-2 paragraphs: what we're building, why, and what research/technical constraints/UX informed this plan]
+## Depends on
+[Bullets — what must exist before this plan starts. Skip if nothing.]
 
-## Dependencies and Prerequisites
-
-[What must exist before this plan can start — data, auth, other features]
-
-## In Scope
-
-[Bullet list of what this plan covers]
-
-## Out of Scope
-
-[Bullet list of what is explicitly NOT covered — and why]
+## In scope / Out of scope
+**In:** [bullets]
+**Out:** [bullets — and why, one line each]
 
 <boundaries>
-## DO NOT CHANGE
-- [file or area locked for this phase — e.g., database/migrations/*]
-- [another locked area]
+**Do not change:** [locked files/areas]
+**Limits:** [e.g., API only, no new deps]
+</boundaries>
 
-## SCOPE LIMITS
+## Slices
 
-- [e.g., This plan creates API only - no UI]
-- [e.g., Do not add new dependencies]
-  </boundaries>
+Each slice is independently testable. Mergeable on its own. Sequenced.
 
-## Tasks
+### T01 — [Verb-first title, e.g., "Add grooming slot model"]
 
-### [T01] [Task Title]
+- **Touches:** [files / modules]
+- **Change:** [one sentence — what gets built]
+- **Verify:** [exact command, click, or test that proves it works]
+- **Done when:**
+  ```gherkin
+  Given [state]
+  When [action]
+  Then [observable outcome]
+  ```
 
-**Type:** Backend / Frontend / DB / Config / ...
-**Description:** [What exactly to build]
-**Files:** [Specific files to create or modify]
-**Action:** [Exact change to make]
-**Acceptance Criteria:**
+### T02 — [...]
 
-```gherkin
-Given [precondition / initial state]
-When [action / trigger]
-Then [expected outcome]
-```
+[Repeat. Aim for 3-7 slices total.]
+
+## Decisions
+[Bullets. Each: decision — one-line reason. Skip if covered in TECHNICAL_SKETCH.md.]
+
+## Risks
+[Bullets. Each: risk — mitigation. Skip if none surfaced.]
 ````
 
-**Dependencies:** [Other tasks that must be done first, if any]
-**Estimate:** [S / M / L — relative complexity]
-
-### [T02] ...
-
-## Technical Decisions
-
-[Key architectural decisions made in this plan, with brief justification]
-
-## Identified Risks
-
-[Risks surfaced by research or UX that the implementation must account for]
+**Writing rules for this agent:**
+- No prose paragraphs. Bullets only, except inside Gherkin blocks.
+- "Touches" lists files; "Change" is one sentence; "Verify" is something a human can run.
+- Don't restate context — the reader has TECHNICAL_SKETCH.md and UX.md a click away.
+- Drop Type / Estimate / Dependencies fields unless they carry information. They usually don't.
 
 The agent also writes `[FEATURE_DIR]/ROADMAP.md` with: overall status (🔴 Not started), a progress table (ID / Task / Status ⬜🔄✅❌ / Notes), status legend, empty Execution History section, and Next Step pointing to T01.
 
@@ -309,24 +333,26 @@ The `<boundaries>` block in PLAN.md prevents scope creep by making off-limits fi
 
 ## Sizing Guidance
 
-**Good plan size:** 2-3 tasks, ~50% context usage, single concern.
+**Good plan:** 3-7 vertical slices. Each slice mergeable and verifiable on its own.
 
 **When to split into multiple plans:**
 
-- Different subsystems (auth vs API vs UI)
-- More than 3 tasks
+- Different user-facing outcomes
+- More than 7 slices
 - Risk of context overflow
-- TDD candidates (separate plans)
 
-**Prefer vertical slices:**
+**Vertical slices, not horizontal layers:**
 
 ```
-PREFER: Plan 01 = User (model + API + UI)
-        Plan 02 = Product (model + API + UI)
+PREFER: T01 = Pet owner can request slot (model + API + minimal UI)
+        T02 = Receptionist can confirm slot (status + API + UI)
 
-AVOID:  Plan 01 = All models
-        Plan 02 = All APIs
+AVOID:  T01 = All DB tables
+        T02 = All APIs
+        T03 = All screens
 ```
+
+A horizontal layer task is rarely testable until the next layer lands. That defeats the slice rule.
 
 ## Anti-Patterns
 
