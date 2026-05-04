@@ -4,14 +4,14 @@ description: Execute a plan and track roadmap progress. Use when implementing ta
 ---
 
 ---
-name: council:execute
-description: Execute a plan created by council:plan. Reads PLAN.md and ROADMAP.md, implements tasks in order, and updates the roadmap after each task completes.
+name: council-execute
+description: Execute a plan created by council-plan. Reads PLAN.md and ROADMAP.md, implements tasks in order, and updates the roadmap after each task completes.
 argument-hint: "<feature-slug>"
 allowed-tools: [Read, Write, Edit, Bash, Glob, Agent, AskUserQuestion]
 ---
 
 <objective>
-Execute the development plan produced by `council:plan`. Tasks are implemented one at a time, in dependency order. The ROADMAP.md is updated after every task — not at the end. If a task is blocked, ambiguous, or fails, execution pauses and the user is consulted before proceeding. The council does not improvise beyond the plan without explicit user approval.
+Execute the development plan produced by `council-plan`. Tasks are implemented one at a time, in dependency order. The ROADMAP.md is updated after every task — not at the end. If a task is blocked, ambiguous, or fails, execution pauses and the user is consulted before proceeding. The council does not improvise beyond the plan without explicit user approval.
 </objective>
 
 <process>
@@ -27,7 +27,7 @@ Check that the following files exist:
 
 If any file is missing, stop and tell the user:
 
-> "Plan files not found in [FEATURE_DIR]. Run `/council:plan [FEATURE_SLUG]` first to create the plan."
+> "Plan files not found in [FEATURE_DIR]. Run `/council-plan [FEATURE_SLUG]` first to create the plan."
 
 If FEATURE_SLUG was not provided, list all directories inside `.council/` and ask the user which one to execute.
 
@@ -131,7 +131,7 @@ Reason: [Specific reason — what was found, what's missing, what the risk is]
 Options:
 1. [Proposed resolution that stays within plan scope]
 2. [Alternative if option 1 isn't feasible]
-3. Revise the plan before continuing (/council:plan [FEATURE_SLUG] to adjust)
+3. Revise the plan before continuing (/council-plan [FEATURE_SLUG] to adjust)
 
 Which path do we take?
 ```

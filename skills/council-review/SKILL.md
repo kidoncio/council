@@ -4,7 +4,7 @@ description: Run a full adversarial council review. Use when you want cross-disc
 ---
 
 ---
-name: council:review
+name: council-review
 description: Invoke 5 advisors with distinct perspectives to review a development plan. Each advisor writes their own report file. A debate agent writes DEBATE.md. A synthesis agent writes SUMMARY_OF_COUNCIL.md.
 argument-hint: "<plan or description of what you want reviewed>"
 allowed-tools: [Read, Write, Agent, Bash, Glob]
@@ -79,7 +79,7 @@ The five council members are permanent personas. Each has a name, role, philosop
 Read $ARGUMENTS carefully. If the argument references a file path, read the file. If it's inline text, treat it as the plan. If no argument is provided, ask the user to describe the plan.
 
 Determine the output directory (`COUNCIL_DIR`) from context:
-- If called from `council:plan`, `COUNCIL_DIR` = `[FEATURE_DIR]/council/` (already known from that session)
+- If called from `council-plan`, `COUNCIL_DIR` = `[FEATURE_DIR]/council/` (already known from that session)
 - If called standalone, derive `COUNCIL_DIR` from the plan file path (e.g., plan at `.council/my-feature/PLAN.md` → `COUNCIL_DIR` = `.council/my-feature/council/`)
 - If no file path is available, use `.council/review/council/` as default
 

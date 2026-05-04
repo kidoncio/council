@@ -4,16 +4,16 @@ description: Discuss a feature before planning. Use when clarifying goals, const
 ---
 
 ---
-name: council:discuss
-description: Think through a feature or problem before planning. Acts as a thinking partner to explore goals, constraints, and approach — then writes CONTEXT.md for handoff to council:plan.
+name: council-discuss
+description: Think through a feature or problem before planning. Acts as a thinking partner to explore goals, constraints, and approach — then writes CONTEXT.md for handoff to council-plan.
 argument-hint: "<feature name or problem description>"
 allowed-tools: [Read, Write, Bash, Glob, AskUserQuestion]
 ---
 
 <objective>
-Facilitate vision articulation before planning. Ask the user targeted questions to surface goals, constraints, and approach, then write CONTEXT.md for `council:plan` to use as its starting point.
+Facilitate vision articulation before planning. Ask the user targeted questions to surface goals, constraints, and approach, then write CONTEXT.md for `council-plan` to use as its starting point.
 
-**When to use:** When the user wants to think before committing to a plan. If they're ready to plan directly, route them to `/council:plan`.
+**When to use:** When the user wants to think before committing to a plan. If they're ready to plan directly, route them to `/council-plan`.
 
 **Philosophy:** Goals first. Everything else derives from what success looks like. Never ask about implementation before the user has articulated the outcome.
 </objective>
@@ -100,7 +100,7 @@ Context saved to [FEATURE_DIR]/CONTEXT.md
 
 Goals captured: [N] | Open questions: [N]
 
-→ Ready to plan? Run: /council:plan [FEATURE_SLUG]
+→ Ready to plan? Run: /council-plan [FEATURE_SLUG]
 ```
 
 </process>
@@ -109,7 +109,7 @@ Goals captured: [N] | Open questions: [N]
 - Goals first. Never ask about implementation before the user has articulated what success looks like.
 - Ask all questions per step in a single message — not one at a time.
 - Use the user's exact words in CONTEXT.md. "Users need to see their dog's history" is better than "historical data access is required."
-- If the user wants to skip discussion, route them: "Go ahead and run `/council:plan [FEATURE_SLUG]` — the council will ask its own clarifying questions."
+- If the user wants to skip discussion, route them: "Go ahead and run `/council-plan [FEATURE_SLUG]` — the council will ask its own clarifying questions."
 - Always write CONTEXT.md before the session ends, even if the user cuts it short.
 - Use English (en-US) for all output. Respond to the user in their language.
 </instructions>
@@ -118,5 +118,5 @@ Goals captured: [N] | Open questions: [N]
 - DON'T ask "What's the scope?" — DO ask "What do you want to accomplish?"
 - DON'T ask about libraries or frameworks — DO derive approach from goals.
 - DON'T write CONTEXT.md after one round without confirming the synthesis.
-- DON'T research, propose architectures, or write tasks — that's council:plan's job.
+- DON'T research, propose architectures, or write tasks — that's council-plan's job.
 </anti_patterns>

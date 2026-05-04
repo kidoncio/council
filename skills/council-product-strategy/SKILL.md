@@ -4,7 +4,7 @@ description: Review as product strategist. Use when validating user outcomes, sc
 ---
 
 ---
-name: council:product-strategy
+name: council-product-strategy
 description: Ask LOVELACE — the Product Strategist — for her opinion on any feature, plan, or decision. User-outcome driven, impatient with engineer perfectionism.
 argument-hint: "<feature, plan, or question to review>"
 allowed-tools: [Read, Bash, Glob]

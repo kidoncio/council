@@ -4,8 +4,8 @@ description: Run parallel research for a feature or problem. Use when you need t
 ---
 
 ---
-name: council:research
-description: Run the council's research phase on a feature or problem — without committing to a plan. Spawns parallel specialized agents, each writing their own findings file. A synthesis agent then produces RESEARCH.md. Hands off to /council:plan when ready.
+name: council-research
+description: Run the council's research phase on a feature or problem — without committing to a plan. Spawns parallel specialized agents, each writing their own findings file. A synthesis agent then produces RESEARCH.md. Hands off to /council-plan when ready.
 argument-hint: "<feature name or problem description>"
 allowed-tools: [Read, Write, Bash, Glob, Agent, WebSearch, AskUserQuestion]
 ---
@@ -13,11 +13,11 @@ allowed-tools: [Read, Write, Bash, Glob, Agent, WebSearch, AskUserQuestion]
 <objective>
 Run Phase 1 of the council's planning process in isolation. The goal is to understand how the market solves a problem — surfaces prior art, technical tradeoffs, failure modes, and security risks — before any design or planning decisions are made.
 
-Use this when you want deep research on a problem without immediately committing to a plan. The output (RESEARCH.md) is fully compatible with `/council:plan`, which will skip its own research phase if RESEARCH.md already exists.
+Use this when you want deep research on a problem without immediately committing to a plan. The output (RESEARCH.md) is fully compatible with `/council-plan`, which will skip its own research phase if RESEARCH.md already exists.
 </objective>
 
 <advisors_reference>
-Research agents are unnamed and objective-driven. The council's named advisors (TURING, LOVELACE, etc.) are not invoked here — they appear in the review phase of `/council:plan` and `/council:review`. This phase produces raw material for them.
+Research agents are unnamed and objective-driven. The council's named advisors (TURING, LOVELACE, etc.) are not invoked here — they appear in the review phase of `/council-plan` and `/council-review`. This phase produces raw material for them.
 </advisors_reference>
 
 <process>
@@ -235,7 +235,7 @@ Show the user:
 - [agent-slug].md × [N]
 
 → Ready to plan? The council will use this research as its starting point:
-  /council:plan [FEATURE_SLUG]
+  /council-plan [FEATURE_SLUG]
 ```
 
 </process>
@@ -248,7 +248,7 @@ Show the user:
 - **Each research agent writes its own file.** The orchestrator does not write individual research files. Only the synthesis agent writes RESEARCH.md.
 - Files are always written to `.council/[FEATURE_SLUG]/` relative to the project root (current working directory).
 - If `RESEARCH.md` already exists, the synthesis agent merges new findings rather than overwriting. Preserve prior insights.
-- `/council:plan` will detect and use RESEARCH.md automatically — the planning phase will skip its own research step.
+- `/council-plan` will detect and use RESEARCH.md automatically — the planning phase will skip its own research step.
 - **Output tone — terse technical prose.** Drop articles, filler, hedging. Fragments OK. Bullets over paragraphs. Named facts, products, incidents — no generic observations. Every sentence must carry information or be cut.
 - Use English (en-US) for all instructions and generated files. Respond to the user in their language.
 </instructions>

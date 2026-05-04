@@ -4,7 +4,7 @@ description: Create a structured implementation plan with council review. Use wh
 ---
 
 ---
-name: council:plan
+name: council-plan
 description: The council collaboratively researches, sketches technical constraints, maps user flows, and creates a development plan. Produces RESEARCH.md, TECHNICAL_SKETCH.md, UX.md, PLAN.md, and ROADMAP.md in .council/[FEATURE_NAME]/, then runs a council review on the final plan.
 argument-hint: "<feature name or problem description>"
 allowed-tools: [Read, Write, Bash, Glob, Agent, WebSearch, AskUserQuestion]
@@ -38,7 +38,7 @@ Read $ARGUMENTS. If provided, use it as the working feature name (slugify for di
 Derive `FEATURE_SLUG` (e.g., "grooming-scheduling") and `FEATURE_DIR` = `.council/[FEATURE_SLUG]`.
 Create the directory: `mkdir -p [FEATURE_DIR]`.
 
-If `[FEATURE_DIR]/CONTEXT.md` exists, read it silently — it contains goals and constraints from a prior `/council:discuss` session and must be passed to every agent as additional context.
+If `[FEATURE_DIR]/CONTEXT.md` exists, read it silently — it contains goals and constraints from a prior `/council-discuss` session and must be passed to every agent as additional context.
 
 **Step 0.1 — Load project context**
 In parallel, check and read all of the following if they exist: `.council/PROJECT.md`, `CLAUDE.md`, `AGENTS.md`. Read them silently — their combined contents are now available as shared project context for every agent spawned in this session. Do not show them to the user or comment on them unless something looks outdated.
@@ -47,9 +47,9 @@ If `.council/PROJECT.md` does not exist, tell the user:
 
   > "I don't have a PROJECT.md for this project yet. This file gives every council agent instant context about your stack and conventions — so we don't re-discover them on every plan.
   >
-  > Run `council:init` now to create it (takes ~2 minutes), or skip and I'll proceed without it."
+  > Run `council-init` now to create it (takes ~2 minutes), or skip and I'll proceed without it."
 
-  Wait for the user's choice. If they choose to init, run the full `council:init` process, then continue with the plan. If they skip, proceed without PROJECT.md.
+  Wait for the user's choice. If they choose to init, run the full `council-init` process, then continue with the plan. If they skip, proceed without PROJECT.md.
 
 ---
 
@@ -61,7 +61,7 @@ If `.council/PROJECT.md` does not exist, tell the user:
 Check if `[FEATURE_DIR]/RESEARCH.md` exists.
 
 - **If it exists:** Read it and tell the user: "I found existing research for this feature. Skipping Phase 1 and proceeding to technical sketch." Proceed directly to Phase 2.
-- **If it doesn't exist:** Run `/council:research [FEATURE_SLUG]`. Only proceed to Phase 2 after it completes and RESEARCH.md exists.
+- **If it doesn't exist:** Run `/council-research [FEATURE_SLUG]`. Only proceed to Phase 2 after it completes and RESEARCH.md exists.
 
 ---
 
@@ -250,16 +250,16 @@ Incorporate feedback before proceeding to Phase 5.
 **Goal:** Run the plan through the full council review to surface issues before implementation begins.
 
 **Step 5.1 — Invoke council review**
-Read PLAN.md (and PLAN-01.md etc. if split) and invoke the `council:review` process, passing:
+Read PLAN.md (and PLAN-01.md etc. if split) and invoke the `council-review` process, passing:
 - The full PLAN.md content as the plan to review
 - `[FEATURE_DIR]/council/` as the output directory for advisor files
 
-The `council:review` process runs autonomously and produces all output files directly:
+The `council-review` process runs autonomously and produces all output files directly:
 - Each of the 5 advisors writes their own `[FEATURE_DIR]/council/[ADVISOR].md` (report + Position After Debate)
 - The debate agent writes `[FEATURE_DIR]/council/DEBATE.md`
 - The synthesis agent writes `[FEATURE_DIR]/SUMMARY_OF_COUNCIL.md`
 
-Wait for all files to exist before proceeding to Step 5.2. Do not write or modify any council files yourself — `council:review` owns all output in `[FEATURE_DIR]/council/` and `SUMMARY_OF_COUNCIL.md`.
+Wait for all files to exist before proceeding to Step 5.2. Do not write or modify any council files yourself — `council-review` owns all output in `[FEATURE_DIR]/council/` and `SUMMARY_OF_COUNCIL.md`.
 
 **Step 5.2 — Apply adjustments to plan**
 After `SUMMARY_OF_COUNCIL.md` exists, read it and apply its findings:
@@ -292,7 +292,7 @@ Present a summary:
 ✅ Reviewed by council — [N] adjustments applied to plan
 ⚠️ [N] open decisions that belong to the team (see ROADMAP.md)
 
-To start execution: /council:execute [FEATURE_SLUG]
+To start execution: /council-execute [FEATURE_SLUG]
 ```
 
 </process>
@@ -303,7 +303,7 @@ To start execution: /council:execute [FEATURE_SLUG]
 - The user's answers must visibly influence the output. If they don't, the agent is not listening.
 - Files are always written to `.council/[FEATURE_SLUG]/` relative to the project root (current working directory).
 - The planning agent must write tasks specific enough to implement without further clarification. If you can't specify Files + Action + Verify + Done, the task is too vague.
-- The council review in Phase 5 uses the full 3-phase process from the `council:review` skill. Each advisor writes their own file, the debate agent writes DEBATE.md, and the synthesis agent writes SUMMARY_OF_COUNCIL.md. The orchestrator does not write any of these files — it only coordinates and waits.
+- The council review in Phase 5 uses the full 3-phase process from the `council-review` skill. Each advisor writes their own file, the debate agent writes DEBATE.md, and the synthesis agent writes SUMMARY_OF_COUNCIL.md. The orchestrator does not write any of these files — it only coordinates and waits.
 - **Project context:** If any of `.council/PROJECT.md`, `CLAUDE.md`, or `AGENTS.md` were loaded in Step 0.1, pass their combined contents to every agent spawned in this session (research agents, technical sketch agent, UX agent, planning agent, council review agents). Prepend them to each agent's context as: "Project context (do not re-research this):\n[combined contents]". This replaces the need for agents to infer the stack from scratch.
 - **Output tone — terse technical prose.** Drop articles, filler, hedging. Fragments OK. Bullets over paragraphs. Plan Context section: 2-3 bullet points, not paragraphs. Every sentence must carry information or be cut.
 - Use English (en-US) for all instructions and generated files. Respond to the user in their language.

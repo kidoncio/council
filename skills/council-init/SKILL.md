@@ -4,7 +4,7 @@ description: Initialize council project context. Use when starting council in a 
 ---
 
 ---
-name: council:init
+name: council-init
 description: Initialize .council/PROJECT.md — a compact project snapshot injected into every council agent as shared context. Prevents agents from re-discovering the stack on every plan.
 argument-hint: ""
 allowed-tools: [Read, Write, Bash, Glob]
@@ -91,7 +91,7 @@ Tell the user: "PROJECT.md written to `.council/PROJECT.md` ([N] lines). Agents 
 
 Do not print the file contents. Do not summarize what was written.
 
-If called from `council:plan`, return to the plan flow immediately.
+If called from `council-plan`, return to the plan flow immediately.
 
 </process>
 
