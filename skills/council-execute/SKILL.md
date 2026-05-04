@@ -1,4 +1,9 @@
 ---
+name: council-execute
+description: Execute a plan and track roadmap progress. Use when implementing tasks from an existing PLAN.md.
+---
+
+---
 name: council:execute
 description: Execute a plan created by council:plan. Reads PLAN.md and ROADMAP.md, implements tasks in order, and updates the roadmap after each task completes.
 argument-hint: "<feature-slug>"

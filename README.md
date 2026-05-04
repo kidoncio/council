@@ -2,7 +2,7 @@
 
 # Council
 
-**Five AI advisors for [Claude Code](https://claude.ai/code). Catch the problems you didn't think to look for — before you build.**
+**Five AI advisors for [Claude Code](https://claude.ai/code) and [Codex](https://openai.com/codex). Catch the problems you didn't think to look for — before you build.**
 
 [![npm version](https://img.shields.io/npm/v/@kidoncio/council?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/@kidoncio/council)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
@@ -20,7 +20,7 @@ _"The argument you had before building is the one you don't have in production."
 
 <br>
 
-[Why Council](#why-council) · [The Council](#the-council) · [Getting Started](#getting-started) · [Commands](#commands) · [Output Files](#output-files)
+[Why Council](#why-council) · [The Council](#the-council) · [Getting Started](#getting-started) · [Skills](#skills) · [Output Files](#output-files)
 
 </div>
 
@@ -32,7 +32,7 @@ You've shipped a feature that looked solid in the plan — and then watched it f
 
 The auth flow that seemed fine until a security engineer pointed out it leaks session tokens. The architecture that worked great until someone asked what happens at 10x load. The product decision that made sense until a user couldn't figure out what the feature was for.
 
-Council gives you five permanent advisors — each with a distinct worldview and a mandate to disagree — embedded directly in Claude Code as slash commands. They review your plan before you build it: independently, then against each other, then together.
+Council gives you five permanent advisors — each with a distinct worldview and a mandate to disagree — embedded directly in Claude Code and Codex as skills. They review your plan before you build it: independently, then against each other, then together.
 
 The problems they surface are the ones that cost the most to fix after the fact. **That's the point.**
 
@@ -60,41 +60,42 @@ Each advisor has a philosophy, a blind spot, and a debate style. They produce in
 npm install -g @kidoncio/council
 ```
 
-`postinstall` copies the commands to `~/.claude/commands/council/` automatically. Confirm it worked:
+`postinstall` installs skills for Claude and Codex.
+
+- Claude skills: `~/.claude/skills/council-*`
+- Codex skills: `~/.agents/skills/council-*`
+
+Confirm it worked:
 
 ```bash
 council list
-# → Lists all installed council commands
+# → Lists all installed council skills
 ```
 
-Then open Claude Code and run your first plan:
-
-```
-/council:plan add user authentication
-```
+Then open Claude Code or Codex and run your first plan with the `council-plan` skill.
 
 ---
 
-## Commands
+## Skills
 
 ### Setup
 
 | Command          | What it does                                                                                                                                                          |
 | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/council:init`  | Reads your project's existing files (`CLAUDE.md`, `AGENTS.md`, `README.md`, `package.json`, etc.) and asks a few targeted questions to write `.council/PROJECT.md` — a stable snapshot of your stack, structure, and conventions that every subsequent council agent uses as shared context. Run once per project. |
+| ``council-init``  | Reads your project's existing files (`CLAUDE.md`, `AGENTS.md`, `README.md`, `package.json`, etc.) and asks a few targeted questions to write `.council/PROJECT.md` — a stable snapshot of your stack, structure, and conventions that every subsequent council agent uses as shared context. Run once per project. |
 
 ### Planning
 
-The commands are designed to run in sequence — but each one is independently useful. You end up with a plan your whole team can poke holes in, backed by research and a full adversarial review.
+The skills are designed to run in sequence — but each one is independently useful. You end up with a plan your whole team can poke holes in, backed by research and a full adversarial review.
 
 | Command             | What it does                                                                                                                                        |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/council:discuss`  | Think through a feature before committing to a plan. Surfaces goals, constraints, and risks into `CONTEXT.md`. Handoff to `/plan` is automatic.     |
-| `/council:research` | Spawn parallel research agents on a feature or problem. Produces `RESEARCH.md` without committing to a plan. Reused automatically by `/plan`.       |
-| `/council:plan`     | 5-phase structured planning: research → technical sketch → UX mapping → task plan → adversarial council review. Produces a complete file set in `.council/[feature]/`. |
-| `/council:execute`  | Reads `PLAN.md`, implements tasks in dependency order, and updates `ROADMAP.md` after each one. Pauses for input when blocked or ambiguous.         |
+| ``council-discuss``  | Think through a feature before committing to a plan. Surfaces goals, constraints, and risks into `CONTEXT.md`. Handoff to `/plan` is automatic.     |
+| ``council-research`` | Spawn parallel research agents on a feature or problem. Produces `RESEARCH.md` without committing to a plan. Reused automatically by `/plan`.       |
+| ``council-plan``     | 5-phase structured planning: research → technical sketch → UX mapping → task plan → adversarial council review. Produces a complete file set in `.council/[feature]/`. |
+| ``council-execute``  | Reads `PLAN.md`, implements tasks in dependency order, and updates `ROADMAP.md` after each one. Pauses for input when blocked or ambiguous.         |
 
-`/council:plan` detects and reuses an existing `RESEARCH.md` automatically — no duplicate work. If `.council/PROJECT.md` exists, it is injected into every agent's context automatically.
+``council-plan`` detects and reuses an existing `RESEARCH.md` automatically — no duplicate work. If `.council/PROJECT.md` exists, it is injected into every agent's context automatically.
 
 ### Council Reviews
 
@@ -102,18 +103,18 @@ Convene one advisor or all five — your choice.
 
 | Command                      | Advisor   | What they focus on                                          |
 | ---------------------------- | --------- | ----------------------------------------------------------- |
-| `/council:review`            | All five  | Independent reports → debate → unified verdict              |
-| `/council:senior-engineer`   | TURING    | Operational complexity, blast radius, debuggability         |
-| `/council:security-engineer` | TORVALDS  | Attack surface, data exposure, specific CVE classes         |
-| `/council:product-strategy`  | LOVELACE  | User outcomes, delivery speed, the right problem            |
-| `/council:architecture`      | DIJKSTRA  | Consistency guarantees, failure modes, migration paths      |
-| `/council:code-quality`      | HAMMURABI | Maintainability, cyclomatic complexity, 6-month inheritance |
+| ``council-review``            | All five  | Independent reports → debate → unified verdict              |
+| ``council-senior-engineer``   | TURING    | Operational complexity, blast radius, debuggability         |
+| ``council-security-engineer`` | TORVALDS  | Attack surface, data exposure, specific CVE classes         |
+| ``council-product-strategy``  | LOVELACE  | User outcomes, delivery speed, the right problem            |
+| ``council-architecture``      | DIJKSTRA  | Consistency guarantees, failure modes, migration paths      |
+| ``council-code-quality``      | HAMMURABI | Maintainability, cyclomatic complexity, 6-month inheritance |
 
 ---
 
 ## How the Review Works
 
-`/council:review` runs a 3-phase adversarial process:
+``council-review`` runs a 3-phase adversarial process:
 
 ```
 Phase 1 — Independent reports
@@ -129,7 +130,7 @@ Phase 3 — Unified verdict
 A synthesized report that names the real trade-offs and what you must decide before committing.
 ```
 
-The single-advisor commands skip the debate and give you one sharp opinion fast.
+The single-advisor skills skip the debate and give you one sharp opinion fast.
 
 ---
 
@@ -172,7 +173,11 @@ Plans are written to `.council/[feature-slug]/` inside your project. Everything 
 npm install -g @kidoncio/council
 ```
 
-`postinstall` copies the commands to `~/.claude/commands/council/` automatically.
+`postinstall` installs skills in Claude/Codex paths.
+
+Optional:
+- Install only for Claude: `council install --target=claude`
+- Install only for Codex: `council install --target=codex`
 
 To uninstall:
 
@@ -184,10 +189,16 @@ npm uninstall -g @kidoncio/council
 
 ### Project — scoped to one repo
 
-Install into `.claude/commands/council/` inside the current directory. Commit it to version-control your council commands alongside the project.
+Install into project-local skills paths: `.claude/skills/council-*` and `.agents/skills/council-*`. Commit them to version-control if you want project-scoped behavior.
 
 ```bash
 npx @kidoncio/council install --local
+
+# only Claude (local)
+npx @kidoncio/council install --local --target=claude
+
+# only Codex (local)
+npx @kidoncio/council install --local --target=codex
 ```
 
 To uninstall:
@@ -220,7 +231,7 @@ To uninstall:
 
 ## Requirements
 
-- [Claude Code](https://claude.ai/code) CLI
+- [Claude Code](https://claude.ai/code) CLI or Codex
 - Node.js 18+
 - `curl` (for the curl install method)
 

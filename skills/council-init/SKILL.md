@@ -1,4 +1,9 @@
 ---
+name: council-init
+description: Initialize council project context. Use when starting council in a repo for the first time.
+---
+
+---
 name: council:init
 description: Initialize .council/PROJECT.md — a compact project snapshot injected into every council agent as shared context. Prevents agents from re-discovering the stack on every plan.
 argument-hint: ""

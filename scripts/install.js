@@ -4,44 +4,61 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
-const SRC_DIR = path.join(__dirname, "..", "commands");
+const SKILLS_DIR = path.join(__dirname, "..", "skills");
+const TARGETS = ["claude", "codex"];
 
-function install(local = false) {
-  const dest = local
-    ? path.join(process.cwd(), ".claude", "commands", "council")
-    : path.join(os.homedir(), ".claude", "commands", "council");
+function parseTargetArg() {
+  const targetArg = process.argv.find((arg) => arg.startsWith("--target="));
+  if (!targetArg) return "all";
+  return targetArg.split("=")[1];
+}
 
-  if (!fs.existsSync(dest)) {
-    fs.mkdirSync(dest, { recursive: true });
+function getSkillRoot(target, local) {
+  const base = local ? process.cwd() : os.homedir();
+  if (target === "claude") return path.join(base, ".claude", "skills");
+  return path.join(base, ".agents", "skills");
+}
+
+function install(local = false, target = "all") {
+  const selectedTargets = target === "all" ? TARGETS : [target];
+  if (!selectedTargets.every((t) => TARGETS.includes(t))) {
+    throw new Error(`invalid --target value: ${target}. Use claude, codex, or all.`);
   }
 
-  const files = fs.readdirSync(SRC_DIR).filter((f) => f.endsWith(".md"));
+  const skillDirs = fs.readdirSync(SKILLS_DIR, { withFileTypes: true })
+    .filter((e) => e.isDirectory() && e.name.startsWith("council-"))
+    .map((e) => e.name)
+    .sort();
 
-  for (const file of files) {
-    fs.copyFileSync(path.join(SRC_DIR, file), path.join(dest, file));
+  for (const t of selectedTargets) {
+    const skillRoot = getSkillRoot(t, local);
+    fs.mkdirSync(skillRoot, { recursive: true });
+
+    for (const skillDirName of skillDirs) {
+      const srcSkillDir = path.join(SKILLS_DIR, skillDirName);
+      const destSkillDir = path.join(skillRoot, skillDirName);
+      fs.mkdirSync(destSkillDir, { recursive: true });
+      fs.copyFileSync(path.join(srcSkillDir, "SKILL.md"), path.join(destSkillDir, "SKILL.md"));
+    }
+
+    const scope = local ? "project" : "global";
+    console.log(`\n✓ council: ${skillDirs.length} skills installed to ${skillRoot} (${scope}, ${t})`);
   }
 
-  const scope = local ? "project" : "global";
-  console.log(`\n✓ council: ${files.length} commands installed to ${dest} (${scope})\n`);
-  console.log("Available commands in Claude Code:");
-  for (const file of files) {
-    console.log(`  /council:${path.basename(file, ".md")}`);
-  }
+  console.log("\nAvailable skills:");
+  for (const skillDirName of skillDirs) console.log(`  ${skillDirName}`);
   console.log("");
 }
 
 const local = process.argv.includes("--local");
-
-// When invoked as postinstall (no --local flag and no explicit CLI call),
-// only run for true global installs: npm_lifecycle_event === "postinstall"
-// and npm_config_global === "true". npx sets npm_config_global to undefined or "false".
+const target = parseTargetArg();
 const isPostinstall = process.env.npm_lifecycle_event === "postinstall";
 if (isPostinstall && !local) {
   if (process.env.npm_config_global !== "true") process.exit(0);
 }
 
 try {
-  install(local);
+  install(local, target);
 } catch (err) {
   console.error("council install failed:", err.message);
   process.exit(1);

@@ -6,18 +6,24 @@ const os = require("os");
 
 const args = process.argv.slice(2);
 const command = args[0];
-const local = args.includes("--local");
 
 const help = `
-council — council of AI advisors for Claude Code
+council — council of AI advisors for Claude Code and Codex
 
 Usage:
-  council install [--local]   Copy commands to ~/.claude/ (global) or .claude/ (project)
-  council uninstall [--local] Remove commands from the global or project install
-  council list                List installed commands (global and project)
+  council install [--local] [--target=claude|codex|all]
+                             Install skills for selected targets
+  council uninstall [--local] [--target=claude|codex|all]
+                             Remove skills from selected targets
+  council list                List installed skills (global/project)
   council --version           Print version
 
 `;
+
+function getSkillRoot(target, base) {
+  if (target === "claude") return path.join(base, ".claude", "skills");
+  return path.join(base, ".agents", "skills");
+}
 
 if (!command || command === "--help" || command === "-h") {
   process.stdout.write(help);
@@ -41,23 +47,25 @@ if (command === "uninstall") {
 }
 
 if (command === "list") {
-  const globalDir = path.join(os.homedir(), ".claude", "commands", "council");
-  const localDir = path.join(process.cwd(), ".claude", "commands", "council");
-
+  const targets = ["claude", "codex"];
   let found = false;
 
-  if (fs.existsSync(globalDir)) {
-    const files = fs.readdirSync(globalDir).filter((f) => f.endsWith(".md"));
-    console.log(`\nGlobal (${globalDir}):\n`);
-    for (const f of files) console.log(`  /council:${path.basename(f, ".md")}`);
-    found = true;
-  }
+  for (const target of targets) {
+    for (const [scope, base] of [["Global", os.homedir()], ["Project", process.cwd()]]) {
+      const skillRoot = getSkillRoot(target, base);
+      if (!fs.existsSync(skillRoot)) continue;
 
-  if (fs.existsSync(localDir)) {
-    const files = fs.readdirSync(localDir).filter((f) => f.endsWith(".md"));
-    console.log(`\nProject (${localDir}):\n`);
-    for (const f of files) console.log(`  /council:${path.basename(f, ".md")}`);
-    found = true;
+      const dirs = fs.readdirSync(skillRoot, { withFileTypes: true })
+        .filter((e) => e.isDirectory() && e.name.startsWith("council-"))
+        .map((e) => e.name)
+        .sort();
+
+      if (dirs.length > 0) {
+        console.log(`\n${scope} ${target} skills (${skillRoot}):\n`);
+        for (const d of dirs) console.log(`  ${d}`);
+        found = true;
+      }
+    }
   }
 
   if (!found) {

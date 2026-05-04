@@ -1,4 +1,9 @@
 ---
+name: council-architecture
+description: Review architecture decisions. Use when validating scalability, failure modes, and long-term design.
+---
+
+---
 name: council:architecture
 description: Ask DIJKSTRA — the Systems Thinker — for his analysis of any architecture, data model, or plan. Thinks in consistency guarantees, failure modes, and 3-year migrations.
 argument-hint: "<architecture, data model, plan, or question>"

@@ -1,4 +1,9 @@
 ---
+name: council-discuss
+description: Discuss a feature before planning. Use when clarifying goals, constraints, and risks.
+---
+
+---
 name: council:discuss
 description: Think through a feature or problem before planning. Acts as a thinking partner to explore goals, constraints, and approach — then writes CONTEXT.md for handoff to council:plan.
 argument-hint: "<feature name or problem description>"

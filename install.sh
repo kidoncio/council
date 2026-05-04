@@ -1,66 +1,70 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DEST="${HOME}/.claude/commands/council"
+CLAUDE_SKILLS_DEST="${HOME}/.claude/skills"
+CODEX_SKILLS_DEST="${HOME}/.agents/skills"
 REPO="https://github.com/kidoncio/council"
-COMMANDS_URL="${REPO}/raw/main/commands"
+SKILLS_URL="${REPO}/raw/main/skills"
 
-COMMANDS=(
-  architecture
-  code-quality
-  discuss
-  execute
-  plan
-  product-strategy
-  research
-  review
-  security-engineer
-  senior-engineer
+SKILLS=(
+  council-architecture
+  council-code-quality
+  council-discuss
+  council-execute
+  council-init
+  council-plan
+  council-product-strategy
+  council-research
+  council-review
+  council-security-engineer
+  council-senior-engineer
 )
 
-# ── resolve source directory ──────────────────────────────────────────────────
-# When run from a local clone (./install.sh), copy from the repo's commands/
-# directory. When piped from curl, download from GitHub.
-
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOCAL_SRC="${SCRIPT_DIR}/commands"
+LOCAL_SRC="${SCRIPT_DIR}/skills"
 
 install_from_local() {
-  mkdir -p "${DEST}"
-  for cmd in "${COMMANDS[@]}"; do
-    cp "${LOCAL_SRC}/${cmd}.md" "${DEST}/${cmd}.md"
+  for root in "${CLAUDE_SKILLS_DEST}" "${CODEX_SKILLS_DEST}"; do
+    mkdir -p "${root}"
+    for skill in "${SKILLS[@]}"; do
+      mkdir -p "${root}/${skill}"
+      cp "${LOCAL_SRC}/${skill}/SKILL.md" "${root}/${skill}/SKILL.md"
+    done
   done
 }
 
 install_from_remote() {
   if ! command -v curl &>/dev/null; then
-    echo "Error: curl is required for remote install. Clone the repo and run ./install.sh instead."
+    echo "Error: curl is required for remote install."
     exit 1
   fi
-  mkdir -p "${DEST}"
-  for cmd in "${COMMANDS[@]}"; do
-    curl -fsSL "${COMMANDS_URL}/${cmd}.md" -o "${DEST}/${cmd}.md"
+  for root in "${CLAUDE_SKILLS_DEST}" "${CODEX_SKILLS_DEST}"; do
+    mkdir -p "${root}"
+    for skill in "${SKILLS[@]}"; do
+      mkdir -p "${root}/${skill}"
+      curl -fsSL "${SKILLS_URL}/${skill}/SKILL.md" -o "${root}/${skill}/SKILL.md"
+    done
   done
 }
 
-# ── main ──────────────────────────────────────────────────────────────────────
-
 echo ""
 if [ -d "${LOCAL_SRC}" ]; then
-  echo "Installing council commands from local clone..."
+  echo "Installing council skills from local clone..."
   install_from_local
 else
-  echo "Installing council commands from GitHub..."
+  echo "Installing council skills from GitHub..."
   install_from_remote
 fi
 
 echo ""
-echo "✓ ${#COMMANDS[@]} commands installed to ${DEST}"
+echo "✓ ${#SKILLS[@]} skills installed to:"
+echo "  - ${CLAUDE_SKILLS_DEST}"
+echo "  - ${CODEX_SKILLS_DEST}"
 echo ""
-echo "Available in Claude Code:"
-for cmd in "${COMMANDS[@]}"; do
-  echo "  /council:${cmd}"
+echo "Available skills:"
+for skill in "${SKILLS[@]}"; do
+  echo "  ${skill}"
 done
 echo ""
-echo "Run 'uninstall.sh' or 'council uninstall' to remove."
+echo "Run 'uninstall.sh' or 'council uninstall' to remove." 
 echo ""

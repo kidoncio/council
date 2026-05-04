@@ -1,4 +1,9 @@
 ---
+name: council-senior-engineer
+description: Review as senior engineer with operational focus. Use when validating reliability and maintainability.
+---
+
+---
 name: council:turing
 description: Ask TURING — the Pragmatist Engineer — for his opinion on any code, plan, or decision. Blunt, operational, no-nonsense.
 argument-hint: "<code, plan, or question to review>"

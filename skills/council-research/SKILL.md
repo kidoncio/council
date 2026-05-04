@@ -1,4 +1,9 @@
 ---
+name: council-research
+description: Run parallel research for a feature or problem. Use when you need technical and product inputs before planning.
+---
+
+---
 name: council:research
 description: Run the council's research phase on a feature or problem — without committing to a plan. Spawns parallel specialized agents, each writing their own findings file. A synthesis agent then produces RESEARCH.md. Hands off to /council:plan when ready.
 argument-hint: "<feature name or problem description>"

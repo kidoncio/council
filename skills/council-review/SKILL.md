@@ -1,4 +1,9 @@
 ---
+name: council-review
+description: Run a full adversarial council review. Use when you want cross-disciplinary critique before implementation.
+---
+
+---
 name: council:review
 description: Invoke 5 advisors with distinct perspectives to review a development plan. Each advisor writes their own report file. A debate agent writes DEBATE.md. A synthesis agent writes SUMMARY_OF_COUNCIL.md.
 argument-hint: "<plan or description of what you want reviewed>"

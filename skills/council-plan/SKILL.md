@@ -1,4 +1,9 @@
 ---
+name: council-plan
+description: Create a structured implementation plan with council review. Use when preparing execution steps for a feature.
+---
+
+---
 name: council:plan
 description: The council collaboratively researches, sketches technical constraints, maps user flows, and creates a development plan. Produces RESEARCH.md, TECHNICAL_SKETCH.md, UX.md, PLAN.md, and ROADMAP.md in .council/[FEATURE_NAME]/, then runs a council review on the final plan.
 argument-hint: "<feature name or problem description>"
