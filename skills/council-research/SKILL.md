@@ -141,8 +141,32 @@ This agent does not search the web. It searches the *repository*. Its job:
    - `classDiagram` for type hierarchies
 5. **Cite file paths with line numbers** in every finding (e.g., `server/api/grooming/index.ts:42`).
 6. **Surface gaps** — what is missing today vs. what the new feature needs.
+7. **Reusable Assets section is MANDATORY.** Inventory what already exists that the new feature can extend or reuse — never let the council plan as if the repo is empty.
 
-Output goes to `[FEATURE_DIR]/research/codebase-survey.md` with the standard format above. The diagram section is **required** for this agent.
+Output goes to `[FEATURE_DIR]/research/codebase-survey.md` with the standard format above, plus this **required** section appended after `## Implications for This Context`:
+
+```markdown
+## Reusable Assets
+
+### Functions / Helpers / Composables
+- `name` — `path:line` — what it does, why relevant to this feature
+
+### Data Model
+- `table_or_type` — `path:line` — current shape, columns/fields, what it represents
+
+### Endpoints / Services / Repositories
+- `endpoint_or_service` — `path:line` — current responsibilities
+
+### Conventions in this area
+- [Naming pattern, folder structure, layering rule observed in adjacent code — one line each]
+
+### Parallel implementations to watch for
+- [If two modules already do the same thing under different names, flag here. Empty if none.]
+```
+
+If this section is empty AND you have not searched broadly, you have not done the job. Empty is only acceptable after explicit search with grep/glob covering: the feature's domain terms, adjacent verbs (create/update/list), the data nouns involved, and at least one synonym. State the searches you ran in the section if it ends up empty.
+
+The diagram section is **required**. The Reusable Assets section is **required**.
 
 Each agent is responsible for writing its own file. The orchestrator does not write research files — it only waits for all agents to complete.
 

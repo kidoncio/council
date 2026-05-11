@@ -52,7 +52,7 @@ Wait for response.
 
 ## Step 3 — Write .council/PROJECT.md
 
-**Hard limit: 40 lines.** If it exceeds 40 lines, cut until it doesn't.
+**Hard limit: 50 lines.** If it exceeds 50 lines, cut until it doesn't. Conventions and Shared modules sections are the priority — cut other sections first.
 
 Format: no prose, no section headers with sub-paragraphs. Every piece of information is one line. Use a flat key/value or bullet style. Omit any field with no real content.
 
@@ -71,8 +71,15 @@ Format: no prose, no section headers with sub-paragraphs. Every piece of informa
 - [path] — [what lives here]
 - (only paths a plan would need to know)
 
-**Conventions:** (only if non-obvious from the stack)
-- [convention]
+**Shared modules / reuse hotspots:**
+- [path] — [what gets reused — e.g., "shared validators", "shared composables", "shared DB helpers"]
+- (only the ones a new feature is likely to touch — keep to 3-5 max)
+
+**Conventions:** (only if non-obvious from the stack — these are the rules every new file must follow)
+- [layering rule — e.g., "routes call services, services call repos, never the reverse"]
+- [naming rule — e.g., "API handlers: kebab-case folders, `index.ts` per verb"]
+- [error/return shape — e.g., "endpoints throw `createError`, never return error objects"]
+- [where helpers live — e.g., "shared utils in `server/utils/`, never inline in handlers"]
 
 **Context files:** [CLAUDE.md, AGENTS.md, etc. — agents should read these for deeper guidance]
 ```
@@ -82,6 +89,7 @@ Rules:
 - No feature descriptions, no roadmap, no WIP state
 - If CLAUDE.md or AGENTS.md exist and cover conventions thoroughly, write only "See CLAUDE.md" under Conventions instead of duplicating content
 - Omit sections with no content — do not write "none" for every field
+- **Conventions and Shared modules sections are load-bearing for anti-duplication.** They tell every future agent *where existing code lives* and *what rules new code must follow*. Skimping here makes the rest of the council fly blind. Spend the lines.
 
 ---
 
@@ -96,7 +104,7 @@ If called from `council-plan`, return to the plan flow immediately.
 </process>
 
 <instructions>
-- The 40-line limit is a hard constraint, not a guideline. Cut ruthlessly.
+- The 50-line limit is a hard constraint, not a guideline. Cut ruthlessly. But the Conventions and Shared modules sections must be present and load-bearing — every council agent depends on them to avoid duplication and architectural drift.
 - If CLAUDE.md already covers stack and conventions comprehensively, PROJECT.md can be as short as 5 lines pointing to it. Do not duplicate.
 - Never ask a question answered by the files. Never write a section without real content.
 - Use English (en-US) for all output. Respond to the user in their language.

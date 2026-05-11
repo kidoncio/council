@@ -76,9 +76,11 @@ Check if `[FEATURE_DIR]/TECHNICAL_SKETCH.md` exists.
 - **If it doesn't exist:** Proceed to Step 2.2.
 
 **Step 2.2 — Technical sketch agent**
-Spawn a single technical sketch agent. It receives: RESEARCH.md (including the `Codebase Today` section + diagram), the feature description, and project context (PROJECT.md, CLAUDE.md, AGENTS.md — whichever exist).
+Spawn a single technical sketch agent. It receives: RESEARCH.md (including the `Codebase Today` section + diagram + **Reusable Assets**), the feature description, and project context (PROJECT.md, CLAUDE.md, AGENTS.md — whichever exist).
 
 The sketch is about **design and architecture** — not low-level implementation. The reader is a developer or PM scanning the page in 90 seconds. They should walk away knowing: *what shape this feature has, where it lives in the system, what it touches.* No code blocks beyond signatures or types. No step-by-step instructions.
+
+**Architectural fit is the primary constraint.** Before proposing any new module/file/abstraction, the agent MUST consult the Reusable Assets inventory from RESEARCH.md. Every new thing must be justified against what already exists. "Create new X" is only acceptable if extending the existing equivalent is genuinely incompatible — and the sketch must say why in one line.
 
 The agent writes to `[FEATURE_DIR]/TECHNICAL_SKETCH.md` with this structure:
 
@@ -107,6 +109,18 @@ The agent writes to `[FEATURE_DIR]/TECHNICAL_SKETCH.md` with this structure:
 - **Touches:** [modules, tables, APIs the feature reads or writes]
 - **Owns:** [new modules, tables, endpoints the feature creates]
 - **Does not touch:** [areas explicitly left alone]
+
+## Reuse Map
+| Existing asset | Path:line | How this feature uses it | Extend / Wrap / Read-only |
+|----------------|-----------|--------------------------|---------------------------|
+| [function/table/service] | [path:line] | [one line] | [verb] |
+
+## New things created
+| New asset | Why a new one (not extending which existing) | Existing alternative considered | Reason existing won't work |
+|-----------|----------------------------------------------|---------------------------------|---------------------------|
+| [name] | [one line] | [existing path:line or "none found"] | [one line, technical] |
+
+If "Existing alternative considered" is "none found" for more than one row, go back to RESEARCH.md — the codebase survey was incomplete.
 
 ## Hard constraints
 - [things the system cannot do or change easily — one line each]
@@ -208,7 +222,8 @@ Each slice is independently testable. Mergeable on its own. Sequenced.
 ### T01 — [Verb-first title, e.g., "Add grooming slot model"]
 
 - **Touches:** [files / modules]
-- **Change:** [one sentence — what gets built]
+- **Reuses:** [existing function/helper/table/endpoint — path:line — from TECHNICAL_SKETCH Reuse Map. "None" only if the slice creates a genuinely new asset already justified in "New things created".]
+- **Change:** [one sentence — what gets built. If creating new code, name the closest existing pattern this MUST follow (e.g., "follows the shape of `server/api/grooming/index.ts`").]
 - **Verify:** [exact command, click, or test that proves it works]
 - **Done when:**
   ```gherkin
@@ -230,9 +245,10 @@ Each slice is independently testable. Mergeable on its own. Sequenced.
 
 **Writing rules for this agent:**
 - No prose paragraphs. Bullets only, except inside Gherkin blocks.
-- "Touches" lists files; "Change" is one sentence; "Verify" is something a human can run.
+- "Touches" lists files; "Reuses" cites existing assets the slice must call/extend (from TECHNICAL_SKETCH Reuse Map); "Change" is one sentence; "Verify" is something a human can run.
 - Don't restate context — the reader has TECHNICAL_SKETCH.md and UX.md a click away.
 - Drop Type / Estimate / Dependencies fields unless they carry information. They usually don't.
+- A slice that creates a new file/module/abstraction without a corresponding entry in TECHNICAL_SKETCH's "New things created" table is **invalid** — either extend the existing equivalent or add the justification upstream and try again.
 
 The agent also writes `[FEATURE_DIR]/ROADMAP.md` with: overall status (🔴 Not started), a progress table (ID / Task / Status ⬜🔄✅❌ / Notes), status legend, empty Execution History section, and Next Step pointing to T01.
 

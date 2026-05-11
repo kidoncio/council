@@ -51,7 +51,23 @@ Wait for confirmation before starting any implementation.
 For each task in the execution queue (respecting dependencies):
 
 **Step 2 — Pre-task check**
-Before implementing, read the task definition from PLAN.md. Verify the task has: Files + Action + Verify + Done specified. If any of these is missing or the acceptance criteria is ambiguous, stop and ask the user one specific question to resolve the ambiguity. Do not guess.
+Before implementing, read the task definition from PLAN.md. Verify the task has: Files + Action + Verify + Done specified (Reuses field is also required — if missing or `none` without justification, treat as ambiguous). If any of these is missing or the acceptance criteria is ambiguous, stop and ask the user one specific question to resolve the ambiguity. Do not guess.
+
+**Step 2.5 — Reuse check (MANDATORY before any new file/function)**
+Before creating any new file, function, helper, type, table, endpoint, or component:
+
+1. Read TECHNICAL_SKETCH.md's **Reuse Map** and **New things created** tables. Cross-reference what the slice's "Reuses" field declares.
+2. Grep the repo for the concept you are about to create. At minimum:
+   - The noun the new asset represents (e.g., `appointment`, `slot`, `booking`).
+   - Adjacent verbs (`create`, `list`, `validate`, `update`).
+   - The closest synonym you can think of (if creating `Booking`, also grep `Reservation`, `Slot`, `Appointment`).
+3. If grep returns a function/type/table that covers the same concept:
+   - **Stop.** Do not create the new thing.
+   - Report: "Found existing `X` at `path:line` that covers this. Options: (a) extend `X`, (b) wrap `X`, (c) genuinely create new because [technical reason]."
+   - Wait for user decision before continuing.
+4. If grep finds nothing relevant, state in your status update which searches you ran, then proceed.
+
+Skipping this step is a defect, not a shortcut. Duplication detected after merge costs 10× more to remove.
 
 **Step 3 — Implement the task**
 Implement the task as described. Constraints:
@@ -62,6 +78,11 @@ Implement the task as described. Constraints:
 - If you discover a dependency is missing or broken, stop immediately (see Step 5)
 
 Apply these coding standards during implementation:
+
+**Architectural fit:**
+- Follow the patterns of adjacent existing code. If the slice's "Change" field cites a reference file ("follows the shape of `X`"), match it: same layering, same naming, same error/return shape.
+- Before creating a new folder, file, or module: confirm none of the existing folders/modules is the natural home for this change. New top-level structure requires explicit justification.
+- If you need a utility, helper, composable, or hook: search for existing ones first. Reuse over re-implementation, always.
 
 **Complexity discipline:**
 - Keep functions focused on a single responsibility. If a function needs more than ~5 decision branches (if/else, switch cases, catch, ternary, `&&`/`||` in conditions), it is doing too much — extract the logic.
@@ -90,6 +111,7 @@ After each task (success or blocked), update ROADMAP.md immediately:
 **Modified files:** [list]
 **Verified criteria:** [list which acceptance criteria passed]
 **Complexity flags:** [any functions with CC > 5 created or modified — name them and the branch count]
+**Reuse decisions:** [what existing assets the slice reused, what was newly created and why]
 **Notes:** [anything unexpected found during implementation]
 ```
 
@@ -179,6 +201,8 @@ Suggested next steps:
 - Do not add error handling, logging, or features not described in the task. Scope discipline is the whole point.
 - If a task touches security-sensitive code (auth, permissions, data access), pause after implementation and explicitly flag it for user review before moving on.
 - Respect the `<boundaries>` section of the plan. Never modify files listed under DO NOT CHANGE.
+- **Reuse is not optional.** Before creating any new file, function, type, table, endpoint, or component, grep the repo for existing equivalents. If one exists, stop and ask. Silent duplication is a defect.
+- **Architectural fit is not optional.** Match the patterns of adjacent code (layering, naming, error shape, file location). Divergence requires user approval.
 - **Output tone — terse technical prose.** Drop articles, filler, hedging. Fragments OK. ROADMAP execution history entries: bullets, no narrative. "What was done" = one tight sentence. Every word must earn its place.
 - Use English (en-US) for all instructions. Respond to the user in their language.
 </instructions>

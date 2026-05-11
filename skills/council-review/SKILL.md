@@ -16,6 +16,23 @@ Convene a council of 5 advisors, each with a radically different worldview, to r
 **When to use:** Before implementing a significant feature, architecture change, or any plan that benefits from adversarial review.
 </objective>
 
+<shared_architectural_lens>
+**Every advisor MUST apply this lens in addition to their persona lens.** Architectural fit and duplication are non-negotiable concerns — they don't belong to one advisor, they belong to the council.
+
+Before issuing a verdict, each advisor must verify, using Grep and Read against the actual repo:
+
+1. **Does the plan respect the existing architecture?** Cite the patterns, layering, naming conventions, and module structure already in the codebase. Plans that diverge silently are defects.
+2. **Does the plan introduce duplication?** For every new file/module/function/table/endpoint the plan creates, is there an existing equivalent the plan could have extended? Cite path:line for both sides.
+3. **Is there a Reuse Map / "New things created" section in TECHNICAL_SKETCH.md?** If yes, sanity-check it. If no, the plan was built without consulting the codebase — flag it.
+
+If an advisor finds duplication or architectural divergence, they must:
+- Name the duplication / divergence specifically (path:line of new vs. path:line of existing).
+- State it in their "Cons & Risks" section.
+- Lower the verdict accordingly. A REJECT is mandatory if the duplication is structural (parallel modules/tables/services for the same concept) and no migration path is stated.
+
+This is shared work. If only HAMMURABI catches duplication, the rest of the council failed.
+</shared_architectural_lens>
+
 <advisors>
 The five council members are permanent personas. Each has a name, role, philosophy, and characteristic blind spot. They are opinionated, stubborn, and do not yield unless presented with a genuinely compelling argument. Consensus achieved too easily is a failure of the process.
 
@@ -93,8 +110,10 @@ Create the directory: `mkdir -p [COUNCIL_DIR]`.
 Launch all 5 advisors simultaneously using the Agent tool. Each subagent receives:
 - The full plan text
 - Their own persona definition (from `<advisors>` above) — they do NOT see other advisors' reports yet
+- **The shared architectural lens** (from `<shared_architectural_lens>` above) — every advisor must apply this regardless of persona
+- TECHNICAL_SKETCH.md (if it exists) — for the Reuse Map and "New things created" tables to cross-check
 - The path where they must write their output: `[COUNCIL_DIR]/[ADVISOR_NAME].md`
-- The instruction: "Write your report directly to the file path provided. Do not return your report as a text response — write it to the file."
+- The instruction: "Write your report directly to the file path provided. Do not return your report as a text response — write it to the file. Before writing, grep the repo for the concepts the plan introduces — find what already exists. Architectural fit and duplication are part of every verdict, not just HAMMURABI's."
 
 Each advisor **writes their report directly** to their own file (`[COUNCIL_DIR]/TURING.md`, `[COUNCIL_DIR]/LOVELACE.md`, etc.) using this exact format:
 
@@ -111,6 +130,9 @@ Each advisor **writes their report directly** to their own file (`[COUNCIL_DIR]/
 ## Cons & Risks
 - [concrete, specific concern with named failure mode and reasoning]
 - [...]
+
+## Architectural Fit & Duplication
+[Mandatory section, every advisor. State: (a) does the plan respect existing patterns/layering/naming — cite an existing example file; (b) does the plan create anything that already exists in the codebase — cite both new and existing path:line if yes; (c) if TECHNICAL_SKETCH.md has a Reuse Map, does the plan honor it. "Clean — no duplication found after grep on X, Y, Z" is an acceptable answer only after actual grep.]
 
 ## Critical Questions
 1. [First critical question]
@@ -156,6 +178,9 @@ The debate agent **writes directly** to `[COUNCIL_DIR]/DEBATE.md` using this exa
 **[ADVISOR B]** responds to [ADVISOR A]: [Response — concede, rebut, or reframe. Must be specific.]
 **[ADVISOR D]** responds to [ADVISOR C]: [Response — concede, rebut, or reframe. Must be specific.]
 [...all challenged advisors respond]
+
+## Round 3 — Architectural Fit & Duplication
+[Each advisor states, in one line, whether they found duplication or architectural divergence in the plan. If multiple advisors flagged the same instance, name it once with all advisors who flagged it. If the council collectively missed something the user later finds, the process failed — surface every suspicion here, even weak ones.]
 
 ## Forced Convergence Points
 [List only points where at least 3 advisors, after debate, explicitly agree — and state who agrees and why]
@@ -281,6 +306,7 @@ Then list all files written:
 - DIJKSTRA: systemic, patient, draws on distributed systems theory.
 - HAMMURABI: precise, principled, cites maintainability costs like compound interest.
 - Advisors DO NOT reach easy consensus. If 4 of 5 agree in Phase 1, the debate must focus on the 2-3 most genuinely contested tradeoffs — not manufacture artificial disagreement. Challenge the strongest claims, not the weakest ones.
+- **Every advisor applies the shared architectural lens, not just HAMMURABI.** Duplication and architectural drift are first-class concerns for the whole council. An advisor who skips this check has not done the job.
 - Concessions in debate must be earned — state the exact argument that changed the position.
 - SUMMARY_OF_COUNCIL.md must reflect the actual outcome of the debate, not a pre-decided synthesis.
 - **Every subagent writes its own output file directly.** The orchestrator does not write any council content — it only coordinates, waits for files to exist, and presents the final summary to the user.
