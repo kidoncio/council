@@ -38,7 +38,7 @@ Read $ARGUMENTS. If provided, use it as the working feature name (slugify for di
 Derive `FEATURE_SLUG` (e.g., "grooming-scheduling") and `FEATURE_DIR` = `.council/[FEATURE_SLUG]`.
 Create the directory: `mkdir -p [FEATURE_DIR]`.
 
-If `[FEATURE_DIR]/CONTEXT.md` exists, read it silently — it contains goals and constraints from a prior `/council-discuss` session and must be passed to every agent as additional context.
+If `[FEATURE_DIR]/BRAINSTORMING.md` exists, read it silently — it contains goals, chosen approach, and the approved design from a prior `/council-brainstorming` session and must be passed to every agent as additional context.
 
 **Step 0.1 — Load project context**
 In parallel, check and read all of the following if they exist: `.council/PROJECT.md`, `CLAUDE.md`, `AGENTS.md`. Read them silently — their combined contents are now available as shared project context for every agent spawned in this session. Do not show them to the user or comment on them unless something looks outdated.
@@ -80,7 +80,9 @@ Spawn a single technical sketch agent. It receives: RESEARCH.md (including the `
 
 The sketch is about **design and architecture** — not low-level implementation. The reader is a developer or PM scanning the page in 90 seconds. They should walk away knowing: *what shape this feature has, where it lives in the system, what it touches.* No code blocks beyond signatures or types. No step-by-step instructions.
 
-**Architectural fit is the primary constraint.** Before proposing any new module/file/abstraction, the agent MUST consult the Reusable Assets inventory from RESEARCH.md. Every new thing must be justified against what already exists. "Create new X" is only acceptable if extending the existing equivalent is genuinely incompatible — and the sketch must say why in one line.
+**Architectural fit is the primary constraint — apply DRY and YAGNI.**
+- **DRY:** Before proposing any new module/file/abstraction, the agent MUST consult the Reusable Assets inventory from RESEARCH.md. "Create new X" is only acceptable if extending the existing equivalent is genuinely incompatible — say why in one line.
+- **YAGNI:** Every new asset listed in `New things created` must be exercised by at least one slice this plan ships. No speculative abstractions, options, interfaces, or extension points for "future" needs. If a slice doesn't call it, it doesn't belong in the sketch.
 
 The agent writes to `[FEATURE_DIR]/TECHNICAL_SKETCH.md` with this structure:
 
@@ -116,11 +118,11 @@ The agent writes to `[FEATURE_DIR]/TECHNICAL_SKETCH.md` with this structure:
 | [function/table/service] | [path:line] | [one line] | [verb] |
 
 ## New things created
-| New asset | Why a new one (not extending which existing) | Existing alternative considered | Reason existing won't work |
-|-----------|----------------------------------------------|---------------------------------|---------------------------|
-| [name] | [one line] | [existing path:line or "none found"] | [one line, technical] |
+| New asset | Why a new one (not extending which existing) | Existing alternative considered | Reason existing won't work | Exercised by slice |
+|-----------|----------------------------------------------|---------------------------------|---------------------------|--------------------|
+| [name] | [one line] | [existing path:line or "none found"] | [one line, technical] | [T0X — the slice in this plan that calls it] |
 
-If "Existing alternative considered" is "none found" for more than one row, go back to RESEARCH.md — the codebase survey was incomplete.
+If "Existing alternative considered" is "none found" for more than one row, go back to RESEARCH.md — the codebase survey was incomplete. If "Exercised by slice" is empty for any row, drop the asset — YAGNI.
 
 ## Hard constraints
 - [things the system cannot do or change easily — one line each]
@@ -185,7 +187,7 @@ Incorporate feedback into UX.md before proceeding.
 **Goal:** Translate research, technical constraints, and UX into a concrete, sequenced implementation plan.
 
 **Step 4.1 — Planning agent**
-Spawn a single planning agent. It receives: project context (PROJECT.md, CLAUDE.md, AGENTS.md — whichever exist), CONTEXT.md, RESEARCH.md, TECHNICAL_SKETCH.md, UX.md, the user's context, and these constraints:
+Spawn a single planning agent. It receives: project context (PROJECT.md, CLAUDE.md, AGENTS.md — whichever exist), BRAINSTORMING.md (if it exists), RESEARCH.md, TECHNICAL_SKETCH.md, UX.md, the user's context, and these constraints:
 
 > Create a plan a developer can read in 2 minutes and execute without re-reading. Each task is one **vertical slice** — a thin end-to-end change a developer can finish, ship, and verify in isolation before the next slice starts.
 >
@@ -248,6 +250,8 @@ Each slice is independently testable. Mergeable on its own. Sequenced.
 - "Touches" lists files; "Reuses" cites existing assets the slice must call/extend (from TECHNICAL_SKETCH Reuse Map); "Change" is one sentence; "Verify" is something a human can run.
 - Don't restate context — the reader has TECHNICAL_SKETCH.md and UX.md a click away.
 - Drop Type / Estimate / Dependencies fields unless they carry information. They usually don't.
+- **DRY:** A slice's `Reuses` field is mandatory. `None` is only valid when the slice creates an asset already justified in TECHNICAL_SKETCH's `New things created` table.
+- **YAGNI:** Slices build only what other slices in this plan or shipped code already need. No scaffolding for unshipped features. If a task exists to "prepare for" something later, cut it — add it to the later plan.
 - A slice that creates a new file/module/abstraction without a corresponding entry in TECHNICAL_SKETCH's "New things created" table is **invalid** — either extend the existing equivalent or add the justification upstream and try again.
 
 The agent also writes `[FEATURE_DIR]/ROADMAP.md` with: overall status (🔴 Not started), a progress table (ID / Task / Status ⬜🔄✅❌ / Notes), status legend, empty Execution History section, and Next Step pointing to T01.
@@ -322,6 +326,7 @@ To start execution: /council-execute [FEATURE_SLUG]
 - The council review in Phase 5 uses the full 3-phase process from the `council-review` skill. Each advisor writes their own file, the debate agent writes DEBATE.md, and the synthesis agent writes SUMMARY_OF_COUNCIL.md. The orchestrator does not write any of these files — it only coordinates and waits.
 - **Project context:** If any of `.council/PROJECT.md`, `CLAUDE.md`, or `AGENTS.md` were loaded in Step 0.1, pass their combined contents to every agent spawned in this session (research agents, technical sketch agent, UX agent, planning agent, council review agents). Prepend them to each agent's context as: "Project context (do not re-research this):\n[combined contents]". This replaces the need for agents to infer the stack from scratch.
 - **Output tone — terse technical prose.** Drop articles, filler, hedging. Fragments OK. Bullets over paragraphs. Plan Context section: 2-3 bullet points, not paragraphs. Every sentence must carry information or be cut.
+- **DRY and YAGNI are first-class constraints.** Reuse over rebuild (DRY); ship only what a slice in this plan exercises (YAGNI). Both are enforced upstream in TECHNICAL_SKETCH (Reuse Map + "New things created" with `Exercised by slice`) and downstream per slice (`Reuses` field).
 - Use English (en-US) for all instructions and generated files. Respond to the user in their language.
 </instructions>
 
@@ -394,5 +399,14 @@ A horizontal layer task is rarely testable until the next layer lands. That defe
 
 - Tasks that bundle more than one concern invite high cyclomatic complexity. If a task says "validate, persist, and notify", that is three tasks in disguise — split them or explicitly describe the expected decomposition.
 - Acceptance criteria must describe observable behavior, not internal structure. "The function has low complexity" is not verifiable. "Given a valid input, the endpoint returns 200 within 200ms" is.
+
+**YAGNI violations:**
+
+- "Add a plugin system / abstraction layer / interface for future X" — when no current slice has a second concrete user. Build the concrete case; extract on the second need.
+- "Set up generic config / options / flags" that no slice flips.
+
+**DRY violations:**
+
+- A new helper/service whose `Reuses` field is `None` and whose concept (noun + verb) already exists elsewhere in the repo. The sketch's Reuse Map missed it — go back and fix the sketch, not the slice.
 
 </plan_quality_rules>

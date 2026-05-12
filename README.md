@@ -90,7 +90,7 @@ The skills are designed to run in sequence — but each one is independently use
 
 | Command             | What it does                                                                                                                                        |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ``council-discuss``  | Think through a feature before committing to a plan. Surfaces goals, constraints, and risks into `CONTEXT.md`. Handoff to `/plan` is automatic.     |
+| ``council-brainstorming``  | Brainstorm a feature before committing to a plan. Weighs 2-3 approaches with tradeoffs, runs sectioned design with per-section approval, and writes `BRAINSTORMING.md`. Hands off to `/plan` or `/research` (user picks). |
 | ``council-research`` | Spawn parallel research agents on a feature or problem. Produces `RESEARCH.md` without committing to a plan. Reused automatically by `/plan`.       |
 | ``council-plan``     | 5-phase structured planning: research → technical sketch → UX mapping → task plan → adversarial council review. Produces a complete file set in `.council/[feature]/`. |
 | ``council-execute``  | Reads `PLAN.md`, implements tasks in dependency order, and updates `ROADMAP.md` after each one. Pauses for input when blocked or ambiguous.         |
@@ -142,7 +142,7 @@ Plans are written to `.council/[feature-slug]/` inside your project. Everything 
 .council/
 ├── PROJECT.md           ← project snapshot: stack, structure, conventions (from /init)
 └── my-feature/
-    ├── CONTEXT.md           ← goals and constraints (from /discuss)
+    ├── BRAINSTORMING.md     ← goals, chosen approach, approved design (from /brainstorming)
     ├── RESEARCH.md          ← synthesized research (from /research or /plan)
     ├── TECHNICAL_SKETCH.md  ← feasibility constraints and chosen direction (from /plan)
     ├── UX.md                ← personas and user journeys (informed by technical constraints)
