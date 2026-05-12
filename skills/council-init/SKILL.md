@@ -1,6 +1,7 @@
 ---
 name: council-init
 description: Initialize council project context. Use when starting council in a repo for the first time.
+allowed-tools: [Read, Write, Bash, Glob, AskUserQuestion, Skill]
 ---
 
 ---

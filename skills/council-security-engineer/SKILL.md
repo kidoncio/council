@@ -1,6 +1,7 @@
 ---
 name: council-security-engineer
 description: Review as security engineer with threat-model focus. Use when validating security risks and mitigations.
+allowed-tools: [Read, Write, Bash, Glob, AskUserQuestion, Skill]
 ---
 
 ---

@@ -1,6 +1,7 @@
 ---
 name: council-senior-engineer
 description: Review as senior engineer with operational focus. Use when validating reliability and maintainability.
+allowed-tools: [Read, Write, Bash, Glob, AskUserQuestion, Skill]
 ---
 
 ---

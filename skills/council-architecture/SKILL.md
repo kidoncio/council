@@ -1,6 +1,7 @@
 ---
 name: council-architecture
 description: Review architecture decisions. Use when validating scalability, failure modes, and long-term design.
+allowed-tools: [Read, Write, Bash, Glob, AskUserQuestion, Skill]
 ---
 
 ---

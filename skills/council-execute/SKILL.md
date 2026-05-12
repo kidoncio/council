@@ -1,6 +1,7 @@
 ---
 name: council-execute
 description: Execute a plan and track roadmap progress. Use when implementing tasks from an existing PLAN.md.
+allowed-tools: [Read, Write, Bash, Glob, AskUserQuestion, Skill]
 ---
 
 ---

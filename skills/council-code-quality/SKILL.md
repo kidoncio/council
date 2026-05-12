@@ -1,6 +1,7 @@
 ---
 name: council-code-quality
 description: Review code quality and long-term maintainability. Use when validating readability and technical debt.
+allowed-tools: [Read, Write, Bash, Glob, AskUserQuestion, Skill]
 ---
 
 ---

@@ -94,6 +94,7 @@ The skills are designed to run in sequence — but each one is independently use
 | ``council-research`` | Spawn parallel research agents on a feature or problem. Produces `RESEARCH.md` without committing to a plan. Reused automatically by `/plan`.       |
 | ``council-plan``     | 5-phase structured planning: research → technical sketch → UX mapping → task plan → adversarial council review. Produces a complete file set in `.council/[feature]/`. |
 | ``council-execute``  | Reads `PLAN.md`, implements tasks in dependency order, and updates `ROADMAP.md` after each one. Pauses for input when blocked or ambiguous.         |
+| ``council-html-companion`` | Reference skill (not user-invoked directly). Defines the shared HTML design system, structure, diagrams, and rules used to generate the `.html` companions next to `BRAINSTORMING.md`, `RESEARCH.md`, `TECHNICAL_SKETCH.md`, `UX.md`, `PLAN.md`, and `SUMMARY_OF_COUNCIL.md`. Markdown stays the source of truth; HTML is the rich review surface for humans. |
 
 ``council-plan`` detects and reuses an existing `RESEARCH.md` automatically — no duplicate work. If `.council/PROJECT.md` exists, it is injected into every agent's context automatically.
 

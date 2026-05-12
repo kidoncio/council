@@ -2,7 +2,7 @@
 name: council-brainstorming
 description: Brainstorm a feature before planning. Use when turning a raw idea into an approved design with alternatives weighed and tradeoffs surfaced.
 argument-hint: "<feature name or problem description>"
-allowed-tools: [Read, Write, Bash, Glob, AskUserQuestion]
+allowed-tools: [Read, Write, Bash, Glob, AskUserQuestion, Skill]
 ---
 
 <objective>
@@ -167,6 +167,26 @@ Use the user's exact words where possible. "Users need to see their dog's histor
 
 ---
 
+## Step 5.5 — Generate `BRAINSTORMING.html` companion
+
+After `BRAINSTORMING.md` is written, generate a sibling HTML companion at `[FEATURE_DIR]/BRAINSTORMING.html` for the user to actually read and share. Markdown stays the source of truth (downstream skills read MD); HTML is the review surface for humans.
+
+**Invoke the `council-html-companion` skill** — it defines the design tokens, structure, diagrams, badges, and anti-patterns shared by every council artifact. Read its SKILL.md, then apply its rules exactly when authoring `BRAINSTORMING.html`.
+
+This file's required content (in addition to the shared structure from `council-html-companion`):
+- A `<header>` with title, status badge ("Ready for planning"), date, and a link to `BRAINSTORMING.md` as the source of truth.
+- A TOC linking to every section.
+- An **Approaches Considered** section rendered as a `.tabs` component (one tab per approach) — show pros/cons/fits-when side by side, with the chosen approach badged `.badge-ok` and rejected ones `.badge-danger` with the one-line verdict.
+- The **Architecture** section with a hand-authored inline SVG diagram showing components and connections (boxes + arrows). No mermaid.js. Use design system color variables.
+- **Components**, **Data Flow**, **Error Handling**, **Testing** as standard sections, each with a small `.badge-ok` "Approved" pill (or `.badge-warn` "Not approved" if the user cut the session short).
+- **Risks Flagged** and **Open Questions** rendered as colored callouts (`.callout.warn` for risks, `.callout` for open questions).
+
+Write via the Write tool. Do not invoke pandoc or any external converter — the HTML is hand-authored from the markdown content to keep diagram quality and styling consistent.
+
+If the user revises `BRAINSTORMING.md` later (Step 7), regenerate `BRAINSTORMING.html` from the updated markdown.
+
+---
+
 ## Step 6 — Spec self-review (inline)
 
 Re-read the written file with fresh eyes and fix inline (no separate review file):
@@ -176,7 +196,7 @@ Re-read the written file with fresh eyes and fix inline (no separate review file
 3. **Ambiguity check:** could any requirement be read two valid ways? Pick one and make it explicit.
 4. **Scope check:** is this focused enough for a single plan? If it spans multiple independent subsystems, flag in **Open Questions** and recommend decomposition.
 
-Apply fixes directly to `BRAINSTORMING.md`. No need to re-review — fix and move on.
+Apply fixes directly to `BRAINSTORMING.md`. If any fix changed content, regenerate `BRAINSTORMING.html` so the review surface matches. No need to re-review the spec itself — fix and move on.
 
 ---
 
@@ -184,9 +204,14 @@ Apply fixes directly to `BRAINSTORMING.md`. No need to re-review — fix and mov
 
 Show:
 
-> "Spec written to `[FEATURE_DIR]/BRAINSTORMING.md`. Please review it and let me know if you want changes before we hand off to planning or research."
+> "Spec written.
+>
+> Markdown (source of truth): `[FEATURE_DIR]/BRAINSTORMING.md`
+> HTML for review (open in browser): `[FEATURE_DIR]/BRAINSTORMING.html`
+>
+> Open the HTML and let me know if you want changes before we hand off to planning or research."
 
-Wait for the user's response. If they request changes, edit `BRAINSTORMING.md` and re-run Step 6. Only proceed on explicit approval ("looks good", "ship it", "approved", etc.).
+Wait for the user's response. If they request changes, edit `BRAINSTORMING.md`, re-run Step 6, then regenerate `BRAINSTORMING.html`. Only proceed on explicit approval ("looks good", "ship it", "approved", etc.).
 
 ---
 
@@ -195,9 +220,11 @@ Wait for the user's response. If they request changes, edit `BRAINSTORMING.md` a
 Show:
 
 ```
-✅ BRAINSTORMING.md approved.
+BRAINSTORMING approved.
 
-📁 Saved to: [FEATURE_DIR]/BRAINSTORMING.md
+Saved to: [FEATURE_DIR]/
+  - BRAINSTORMING.md   (source of truth — downstream skills read this)
+  - BRAINSTORMING.html (open in browser to review or share)
 
 Next step — your call:
   → Ready to plan implementation slices?     /council-plan [FEATURE_SLUG]
@@ -216,7 +243,8 @@ Do not invoke either skill yourself — let the user choose.
 - Per-section approval is non-negotiable. Do not write `BRAINSTORMING.md` until every design section has been approved.
 - Use the user's exact words in `BRAINSTORMING.md`. Paraphrasing into engineering language hides intent.
 - Never invoke `/council-plan` or `/council-research` directly — only suggest. The user chooses.
-- Always write `BRAINSTORMING.md` before the session ends, even if the user cuts it short. Mark unapproved sections with "[NOT APPROVED]".
+- Always write `BRAINSTORMING.md` before the session ends, even if the user cuts it short. Mark unapproved sections with "[NOT APPROVED]". Generate `BRAINSTORMING.html` alongside it using the `council-html-companion` skill. If the session was cut short, still emit the HTML — unapproved sections render with a `.badge-warn` "Not approved" pill so the state is honest.
+- Markdown is source of truth, HTML is the review surface. Never let them drift — every edit to the MD must be followed by a regeneration of the HTML.
 - **Output tone — terse technical prose.** Drop articles, filler, hedging. Fragments OK. Bullets over paragraphs. Every sentence must carry information or be cut.
 - Use English (en-US) for all generated files. Respond to the user in their language.
 </instructions>

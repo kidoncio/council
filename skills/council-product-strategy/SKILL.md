@@ -1,6 +1,7 @@
 ---
 name: council-product-strategy
 description: Review as product strategist. Use when validating user outcomes, scope, and prioritization.
+allowed-tools: [Read, Write, Bash, Glob, AskUserQuestion, Skill]
 ---
 
 ---

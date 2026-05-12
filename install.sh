@@ -12,6 +12,7 @@ SKILLS=(
   council-code-quality
   council-dispatching-parallel-agents
   council-execute
+  council-html-companion
   council-init
   council-plan
   council-product-strategy

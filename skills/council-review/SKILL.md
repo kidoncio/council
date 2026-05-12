@@ -1,13 +1,14 @@
 ---
 name: council-review
 description: Run a full adversarial council review. Use when you want cross-disciplinary critique before implementation.
+allowed-tools: [Read, Write, Bash, Glob, AskUserQuestion, Skill]
 ---
 
 ---
 name: council-review
 description: Invoke 5 advisors with distinct perspectives to review a development plan. Each advisor writes their own report file. A debate agent writes DEBATE.md. A synthesis agent writes SUMMARY_OF_COUNCIL.md.
 argument-hint: "<plan or description of what you want reviewed>"
-allowed-tools: [Read, Write, Agent, Bash, Glob]
+allowed-tools: [Read, Write, Agent, Bash, Glob, Skill]
 ---
 
 <objective>
@@ -101,6 +102,9 @@ Determine the output directory (`COUNCIL_DIR`) from context:
 - If no file path is available, use `.council/review/council/` as default
 
 Create the directory: `mkdir -p [COUNCIL_DIR]`.
+
+**Step 0.1 — HTML companion contract**
+The synthesized `SUMMARY_OF_COUNCIL.md` ships with a sibling `SUMMARY_OF_COUNCIL.html` for the user to read and share. The synthesis agent (Phase 3) writes both. Per-advisor reports in `[COUNCIL_DIR]/<ADVISOR>.md` and the debate transcript `[COUNCIL_DIR]/DEBATE.md` stay markdown-only — they are inputs to the synthesized summary, not user review surfaces. The shared design system, structure, and rules live in the `council-html-companion` skill — the synthesis agent invokes it (or is briefed with its rules verbatim) before writing the HTML.
 
 ---
 
@@ -206,8 +210,9 @@ The orchestrator waits for `[COUNCIL_DIR]/DEBATE.md` to be written before procee
 **Step 3 — Spawn a synthesis subagent**
 After `DEBATE.md` exists, spawn a single synthesis subagent. It receives:
 - The paths to all 5 advisor files and `DEBATE.md` (which it must read)
-- The output path: `[COUNCIL_DIR]/../SUMMARY_OF_COUNCIL.md` (one level up from `council/`, in the feature directory)
-- The instruction: "Read all advisor reports and the debate transcript. Write the unified council summary directly to the file path provided."
+- The markdown output path: `[COUNCIL_DIR]/../SUMMARY_OF_COUNCIL.md` (one level up from `council/`, in the feature directory)
+- The HTML output path: `[COUNCIL_DIR]/../SUMMARY_OF_COUNCIL.html` (sibling of the markdown)
+- The instruction: "Read all advisor reports and the debate transcript. Write the unified council summary directly to the markdown file path provided. Then invoke the `council-html-companion` skill and write the HTML companion at the HTML path. Per-advisor files and DEBATE.md stay markdown-only — do not generate HTML for them."
 
 The synthesis agent **writes directly** to `[FEATURE_DIR]/SUMMARY_OF_COUNCIL.md`. The reader is a busy developer or PM. They should know in 60 seconds: *can we ship, what must change first, what's still open.* No paragraphs. No restating advisor reports. Lead with the verdict.
 
@@ -272,6 +277,17 @@ The synthesis agent **writes directly** to `[FEATURE_DIR]/SUMMARY_OF_COUNCIL.md`
 - Use checkboxes `[ ]` for blockers — they're action items, not analysis.
 - Keep it under one screen on a laptop. If it's longer, the synthesis is leaking detail that belongs in the per-advisor files.
 
+**`SUMMARY_OF_COUNCIL.html` rules (via the `council-html-companion` skill):**
+- Header with title, the verdict rendered as a large top-of-page badge (`.badge-ok` for PROCEED, `.badge-warn` for PROCEED WITH ADJUSTMENTS, `.badge-danger` for REVISE BEFORE PROCEEDING), date, link back to `SUMMARY_OF_COUNCIL.md`.
+- TOC over every section.
+- **Blockers** as `.callout.danger` blocks (each with a real `<input type="checkbox">` that's purely visual — non-functional checkbox to make the action-item feel obvious).
+- **Manageable risks** as `.callout.warn` blocks.
+- **Accepted debt** as `.callout` blocks (default tone).
+- **Open questions** as `.callout` blocks with a question-mark prefix.
+- **How each advisor voted** as a table with the Verdict cell color-badged (APPROVE → `.badge-ok`, APPROVE WITH RESERVATIONS → `.badge-warn`, REJECT → `.badge-danger`) and "Held in debate?" as `.badge-ok` "Held" or `.badge-status` "Conceded".
+- **Next 3 steps** as an ordered list, each step in its own card-styled block.
+- Footer with relative links to the per-advisor markdown files in `council/` (markdown only — no HTML for those) and to `council/DEBATE.md`.
+
 ---
 
 ## Phase 4 — Present to caller
@@ -288,12 +304,13 @@ Then list all files written:
 ```
 ## Council Review Complete
 
-📁 Individual advisor reports in [COUNCIL_DIR]:
-- TURING.md, LOVELACE.md, TORVALDS.md, DIJKSTRA.md, HAMMURABI.md
-- DEBATE.md
+Individual advisor reports in [COUNCIL_DIR] (markdown only):
+  - TURING.md, LOVELACE.md, TORVALDS.md, DIJKSTRA.md, HAMMURABI.md
+  - DEBATE.md
 
-📁 Summary:
-- SUMMARY_OF_COUNCIL.md
+Summary (review surface for the user):
+  - SUMMARY_OF_COUNCIL.md    — source of truth
+  - SUMMARY_OF_COUNCIL.html  — open in browser to review or share
 ```
 
 </process>
@@ -309,6 +326,7 @@ Then list all files written:
 - **Every advisor applies the shared architectural lens, not just HAMMURABI.** Duplication and architectural drift are first-class concerns for the whole council. An advisor who skips this check has not done the job.
 - Concessions in debate must be earned — state the exact argument that changed the position.
 - SUMMARY_OF_COUNCIL.md must reflect the actual outcome of the debate, not a pre-decided synthesis.
+- **HTML companion:** Only `SUMMARY_OF_COUNCIL.md` gets a sibling `SUMMARY_OF_COUNCIL.html`, generated by the synthesis agent via the `council-html-companion` skill. Per-advisor reports and `DEBATE.md` stay markdown-only.
 - **Every subagent writes its own output file directly.** The orchestrator does not write any council content — it only coordinates, waits for files to exist, and presents the final summary to the user.
 - **Output tone — terse technical prose.** Drop articles (a/an/the), filler (just/really/basically), hedging (likely/might/probably). Fragments OK. Pattern: `[thing] [action] [reason].` No narrative wind-up. Every sentence must carry information or be cut.
 - Phase 1 reports: 80-150 words each. Debate: one sentence per challenge/response — no paraphrasing the other advisor before responding. Summary: bullets, no prose paragraphs.
