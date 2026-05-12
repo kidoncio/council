@@ -8,8 +8,9 @@ SKILLS_URL="${REPO}/raw/main/skills"
 
 SKILLS=(
   council-architecture
+  council-brainstorming
   council-code-quality
-  council-discuss
+  council-dispatching-parallel-agents
   council-execute
   council-init
   council-plan
