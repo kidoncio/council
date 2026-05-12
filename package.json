@@ -1,6 +1,6 @@
 {
   "name": "@kidoncio/council",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "A council of 5 AI advisor skills for Claude Code and Codex — plan, review, and execute features with adversarial validation.",
   "keywords": [
     "claude",

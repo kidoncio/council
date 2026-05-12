@@ -52,7 +52,7 @@ If `.council/PROJECT.md` does not exist, tell the user:
   Wait for the user's choice. If they choose to init, run the full `council-init` process, then continue with the plan. If they skip, proceed without PROJECT.md.
 
 **Step 0.2 — HTML companion contract**
-Three reviewable markdown files produced in this session ship with sibling `.html` companions: `TECHNICAL_SKETCH.html`, `UX.html`, `PLAN.html` (one per plan file if split). The `SUMMARY_OF_COUNCIL.html` is owned by the `council-review` skill. The shared design system, structure, diagrams, and rules live in the `council-html-companion` skill — every agent that emits an HTML companion must invoke it (or be briefed with its rules verbatim by the orchestrator) before writing the HTML.
+Three reviewable markdown files produced in this session ship with sibling `.html` companions: `TECHNICAL_SKETCH.html`, `UX.html`, `PLAN.html` (one per plan file if split). The `SUMMARY_OF_COUNCIL.html` is owned by the `council-review` skill. Division of labor for each of these: the producing agent writes only the markdown. **The orchestrator then spawns the `council-html-companion` subagent** to render the HTML — see that skill's `<invocation>` section for the contract. Producing agents never inline HTML rules.
 
 Per-agent intermediate files do **not** get HTML companions: per-advisor reports (`council/<ADVISOR>.md`), the debate transcript (`council/DEBATE.md`), and per-research-agent files (`research/<slug>.md`) stay markdown-only. `ROADMAP.md` is execution state, not a review artifact — no HTML.
 
@@ -81,7 +81,7 @@ Check if `[FEATURE_DIR]/TECHNICAL_SKETCH.md` exists.
 - **If it doesn't exist:** Proceed to Step 2.2.
 
 **Step 2.2 — Technical sketch agent**
-Spawn a single technical sketch agent. It receives: RESEARCH.md (including the `Codebase Today` section + diagram + **Reusable Assets**), the feature description, project context (PROJECT.md, CLAUDE.md, AGENTS.md — whichever exist), and the instruction to invoke the `council-html-companion` skill before emitting any HTML.
+Spawn a single technical sketch agent. It receives: RESEARCH.md (including the `Codebase Today` section + diagram + **Reusable Assets**), the feature description, and project context (PROJECT.md, CLAUDE.md, AGENTS.md — whichever exist). The agent writes only the markdown — the orchestrator handles HTML rendering after the agent finishes.
 
 The sketch is about **design and architecture** — not low-level implementation. The reader is a developer or PM scanning the page in 90 seconds. They should walk away knowing: *what shape this feature has, where it lives in the system, what it touches.* No code blocks beyond signatures or types. No step-by-step instructions.
 
@@ -138,13 +138,16 @@ If "Existing alternative considered" is "none found" for more than one row, go b
 
 **Length target: under 1 page when rendered.** If a section needs more, the sketch is leaking into the plan — cut it.
 
-After writing the markdown, the agent **also writes `[FEATURE_DIR]/TECHNICAL_SKETCH.html`** by invoking the `council-html-companion` skill and following its rules. The HTML must include:
-- Header with title, status badge ("Technical sketch — review"), date, link back to the markdown source.
-- TOC over every section.
-- The "How it fits" mermaid block rendered as a hand-authored inline SVG (boxes for components, arrows for relationships, color-code new components with `var(--accent)` fill and existing components with `var(--surface)` + border).
-- **Alternatives considered** as a `.tabs` component or a comparison table — the chosen direction badged `.badge-ok`.
-- **Reuse Map** and **New things created** rendered as tables wrapped in `.table-scroll`. The "New things created" rows with empty `Exercised by slice` get a `.badge-warn` "YAGNI risk" pill.
-- **Hard constraints** and **What this rules out for UX** rendered as `.callout.warn` blocks.
+After the technical sketch agent finishes and `TECHNICAL_SKETCH.md` exists, the orchestrator spawns the `council-html-companion` subagent to render `TECHNICAL_SKETCH.html`. Inputs:
+
+- `markdown_path` = `[FEATURE_DIR]/TECHNICAL_SKETCH.md` (absolute)
+- `html_path` = `[FEATURE_DIR]/TECHNICAL_SKETCH.html` (absolute)
+- `artifact_type` = `TECHNICAL_SKETCH`
+- `feature_slug` = `[FEATURE_SLUG]`
+- `status_label` = `Technical sketch — review`
+- `companion_index` = comma-separated list of other `*.html` files already present in `[FEATURE_DIR]` (typically `BRAINSTORMING.html`, `RESEARCH.html` if they exist)
+
+Wait for the subagent's one-line confirmation before continuing.
 
 **Step 2.3 — Present and validate**
 Show the user the chosen direction and hard constraints. Ask:
@@ -154,7 +157,7 @@ Show the user the chosen direction and hard constraints. Ask:
 > Markdown: `[FEATURE_DIR]/TECHNICAL_SKETCH.md`
 > HTML for review: `[FEATURE_DIR]/TECHNICAL_SKETCH.html`"
 
-Incorporate feedback into TECHNICAL_SKETCH.md before proceeding. After any edit, regenerate TECHNICAL_SKETCH.html so the review surface matches.
+Incorporate feedback into TECHNICAL_SKETCH.md before proceeding. After any edit, re-spawn the `council-html-companion` subagent (same inputs as Step 2.2) so the HTML matches.
 
 ---
 
@@ -174,7 +177,7 @@ A single agent asks the user:
 Wait for user response before proceeding.
 
 **Step 3.2 — UX mapping agent**
-Spawn a single UX agent. It receives: the feature description, RESEARCH.md, TECHNICAL_SKETCH.md, the user's answers, and the instruction to invoke the `council-html-companion` skill before emitting any HTML. It must:
+Spawn a single UX agent. It receives: the feature description, RESEARCH.md, TECHNICAL_SKETCH.md, and the user's answers. The agent writes only the markdown — the orchestrator handles HTML rendering after it finishes. It must:
 
 - Create **at least 2 distinct user personas** (different roles, tech savviness, or goals)
 - Map the complete journey for each persona: entry point → steps → success state → error states → exit
@@ -189,13 +192,16 @@ The agent writes to `[FEATURE_DIR]/UX.md` with:
 - Business rules identified (bullet list)
 - Open questions for the product owner
 
-After writing the markdown, the agent **also writes `[FEATURE_DIR]/UX.html`** by invoking the `council-html-companion` skill and following its rules. The HTML must include:
-- Header with title, status badge ("UX — review"), date, link back to the markdown source.
-- TOC.
-- Each persona as its own `<section>` with a heading and a `.callout` summary block.
-- The journey step table per persona, rendered as a standard table with the State column color-coded: green badge (`.badge-ok`) for success states, amber (`.badge-warn`) for friction/error states, red (`.badge-danger`) for hard failures.
-- A hand-authored inline SVG flow diagram per persona — entry point → steps → success/error branches. Use design-system color variables so it adapts to dark mode.
-- **Business rules** and **Open questions** rendered as `.callout` blocks.
+After the UX agent finishes and `UX.md` exists, the orchestrator spawns the `council-html-companion` subagent to render `UX.html`. Inputs:
+
+- `markdown_path` = `[FEATURE_DIR]/UX.md` (absolute)
+- `html_path` = `[FEATURE_DIR]/UX.html` (absolute)
+- `artifact_type` = `UX`
+- `feature_slug` = `[FEATURE_SLUG]`
+- `status_label` = `UX — review`
+- `companion_index` = comma-separated list of other `*.html` files already present in `[FEATURE_DIR]` (typically `BRAINSTORMING.html`, `RESEARCH.html`, `TECHNICAL_SKETCH.html`)
+
+Wait for the subagent's one-line confirmation before continuing.
 
 **Step 3.3 — Present and validate**
 Show the user the persona journeys. Ask:
@@ -205,7 +211,7 @@ Show the user the persona journeys. Ask:
 > Markdown: `[FEATURE_DIR]/UX.md`
 > HTML for review: `[FEATURE_DIR]/UX.html`"
 
-Incorporate feedback into UX.md before proceeding. Regenerate UX.html after any edit.
+Incorporate feedback into UX.md before proceeding. Re-spawn the `council-html-companion` subagent (same inputs as Step 3.2) after any edit.
 
 ---
 
@@ -214,7 +220,7 @@ Incorporate feedback into UX.md before proceeding. Regenerate UX.html after any 
 **Goal:** Translate research, technical constraints, and UX into a concrete, sequenced implementation plan.
 
 **Step 4.1 — Planning agent**
-Spawn a single planning agent. It receives: project context (PROJECT.md, CLAUDE.md, AGENTS.md — whichever exist), BRAINSTORMING.md (if it exists), RESEARCH.md, TECHNICAL_SKETCH.md, UX.md, the user's context, the instruction to invoke the `council-html-companion` skill before emitting any HTML, and these constraints:
+Spawn a single planning agent. It receives: project context (PROJECT.md, CLAUDE.md, AGENTS.md — whichever exist), BRAINSTORMING.md (if it exists), RESEARCH.md, TECHNICAL_SKETCH.md, UX.md, the user's context, and these constraints (the agent writes only markdown — the orchestrator handles HTML rendering after it finishes):
 
 > Create a plan a developer can read in 2 minutes and execute without re-reading. Each task is one **vertical slice** — a thin end-to-end change a developer can finish, ship, and verify in isolation before the next slice starts.
 >
@@ -283,16 +289,16 @@ Each slice is independently testable. Mergeable on its own. Sequenced.
 
 The agent also writes `[FEATURE_DIR]/ROADMAP.md` with: overall status (🔴 Not started), a progress table (ID / Task / Status ⬜🔄✅❌ / Notes), status legend, empty Execution History section, and Next Step pointing to T01. **ROADMAP.md does not get an HTML companion** — it's an execution-state file, not a review artifact.
 
-After writing PLAN.md (or PLAN-01.md, etc.), the agent **also writes a sibling `PLAN.html`** (and `PLAN-01.html`, etc.) by invoking the `council-html-companion` skill and following its rules. The HTML must include:
-- Header with title, status badge ("Plan — review"), date, link back to the markdown source.
-- TOC linking to each slice.
-- In/Out of scope and `<boundaries>` rendered as side-by-side `.callout` blocks (in-scope `.callout.ok`, out-of-scope `.callout.warn`, boundaries `.callout.danger`).
-- Each **slice** rendered as its own `<section>` (heading `T01 — [title]`) with:
-  - A definition list for **Touches**, **Reuses**, **Change**, **Verify**. The Verify command in `<code>` so the user can copy it cleanly.
-  - The Gherkin acceptance criteria block using the `.gherkin` class with `Given`/`When`/`Then`/`And` keywords wrapped in `<span class="gh-keyword">`.
-  - A small badge near the heading indicating dependency type (e.g., `.badge-status` "Independent" if `Depends on` is empty, `.badge-warn` "Sequential" if it depends on another slice).
-- A hand-authored inline SVG showing slice sequencing — boxes for each Tnn with arrows for dependencies. Independent slices in a row; sequential chains as a vertical flow.
-- **Decisions** and **Risks** rendered as `.callout` blocks (risks `.callout.warn`).
+After the planning agent finishes and `PLAN.md` (or `PLAN-01.md`, `PLAN-02.md`, etc.) exists, the orchestrator spawns the `council-html-companion` subagent **once per PLAN file** to render each sibling `.html`. Inputs (substitute the filename per call):
+
+- `markdown_path` = `[FEATURE_DIR]/PLAN.md` (or `PLAN-NN.md`) (absolute)
+- `html_path` = `[FEATURE_DIR]/PLAN.html` (or `PLAN-NN.html`) (absolute)
+- `artifact_type` = `PLAN`
+- `feature_slug` = `[FEATURE_SLUG]`
+- `status_label` = `Plan — review`
+- `companion_index` = comma-separated list of other `*.html` files already present in `[FEATURE_DIR]` (typically `BRAINSTORMING.html`, `RESEARCH.html`, `TECHNICAL_SKETCH.html`, `UX.html`, plus any sibling `PLAN-*.html` already rendered earlier in this loop)
+
+If split into PLAN-01.md, PLAN-02.md, etc., spawn the subagent sequentially (not in parallel) so each subsequent call sees the prior siblings in its `companion_index`. Wait for each subagent's one-line confirmation before spawning the next.
 
 **Step 4.2 — Present to user**
 Show the task list and ask:
@@ -302,7 +308,7 @@ Show the task list and ask:
 > Markdown: `[FEATURE_DIR]/PLAN.md`
 > HTML for review: `[FEATURE_DIR]/PLAN.html`"
 
-Incorporate feedback before proceeding to Phase 5. Regenerate PLAN.html after any edit.
+Incorporate feedback before proceeding to Phase 5. After any edit, re-spawn the `council-html-companion` subagent (same inputs as Step 4.1) for each affected PLAN file.
 
 ---
 
@@ -371,7 +377,7 @@ To start execution: /council-execute [FEATURE_SLUG]
 - The planning agent must write tasks specific enough to implement without further clarification. If you can't specify Files + Action + Verify + Done, the task is too vague.
 - The council review in Phase 5 uses the full 3-phase process from the `council-review` skill. Each advisor writes their own file, the debate agent writes DEBATE.md, and the synthesis agent writes SUMMARY_OF_COUNCIL.md. The orchestrator does not write any of these files — it only coordinates and waits.
 - **Project context:** If any of `.council/PROJECT.md`, `CLAUDE.md`, or `AGENTS.md` were loaded in Step 0.1, pass their combined contents to every agent spawned in this session (research agents, technical sketch agent, UX agent, planning agent, council review agents). Prepend them to each agent's context as: "Project context (do not re-research this):\n[combined contents]". This replaces the need for agents to infer the stack from scratch.
-- **HTML companions:** Only the synthesized review artifacts get a sibling `.html` — TECHNICAL_SKETCH, UX, PLAN (and PLAN-01, etc.), and SUMMARY_OF_COUNCIL. Per-advisor reports, the debate transcript, per-research-agent files, and ROADMAP.md stay markdown-only. The shared design system lives in the `council-html-companion` skill — every agent that emits HTML invokes it first (or is briefed with its rules) so styling, diagrams, and badges stay consistent across artifacts. Markdown stays source of truth — HTML never carries content the markdown doesn't.
+- **HTML companions:** Only the synthesized review artifacts get a sibling `.html` — TECHNICAL_SKETCH, UX, PLAN (and PLAN-01, etc.), and SUMMARY_OF_COUNCIL. Per-advisor reports, the debate transcript, per-research-agent files, and ROADMAP.md stay markdown-only. The orchestrator (not the producing agents) renders each HTML by spawning the `council-html-companion` subagent after the markdown is finalized — see that skill's `<invocation>` section. Markdown stays source of truth — HTML never carries content the markdown doesn't.
 - **Output tone — terse technical prose.** Drop articles, filler, hedging. Fragments OK. Bullets over paragraphs. Plan Context section: 2-3 bullet points, not paragraphs. Every sentence must carry information or be cut.
 - **DRY and YAGNI are first-class constraints.** Reuse over rebuild (DRY); ship only what a slice in this plan exercises (YAGNI). Both are enforced upstream in TECHNICAL_SKETCH (Reuse Map + "New things created" with `Exercised by slice`) and downstream per slice (`Reuses` field).
 - Use English (en-US) for all instructions and generated files. Respond to the user in their language.
