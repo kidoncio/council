@@ -19,11 +19,11 @@ The output is a set of files in `.council/[FEATURE_NAME]/` that serve as the aut
 <advisors_reference>
 The council is composed of 5 permanent advisors used throughout this process:
 
-- **TURING** — Pragmatist Engineer. Focuses on operational simplicity and blast radius.
+- **TURING** — Pragmatist Engineer. Focuses on operational simplicity, blast radius, ghost code, naming, abstractions, test quality, and convention drift.
 - **LOVELACE** — Product Strategist. Focuses on user outcomes and delivery speed.
 - **TORVALDS** — Security Engineer. Focuses on attack surfaces and data exposure.
 - **DIJKSTRA** — Systems Thinker. Focuses on consistency, scalability, and data model evolution.
-- **HAMMURABI** — Code Quality Judge. Focuses on maintainability and future developer experience.
+- **CASSANDRA** — Pre-Mortem Strategist. Narrates how the plan will fail in 6 months and which leading indicator gets ignored.
 </advisors_reference>
 
 <process>
@@ -358,7 +358,7 @@ Files created in [FEATURE_DIR]:
   - RESEARCH.html, TECHNICAL_SKETCH.html, UX.html, PLAN.html, SUMMARY_OF_COUNCIL.html
 
 Individual reports in [FEATURE_DIR]/council/:
-  - TURING.md, LOVELACE.md, TORVALDS.md, DIJKSTRA.md, HAMMURABI.md, DEBATE.md
+  - TURING.md, LOVELACE.md, TORVALDS.md, DIJKSTRA.md, CASSANDRA.md, DEBATE.md
   - matching .html companions for each
 
 Reviewed by council — [N] adjustments applied to plan

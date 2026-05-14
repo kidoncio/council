@@ -9,12 +9,12 @@ SKILLS_URL="${REPO}/raw/main/skills"
 SKILLS=(
   council-architecture
   council-brainstorming
-  council-code-quality
   council-dispatching-parallel-agents
   council-execute
   council-html-companion
   council-init
   council-plan
+  council-pre-mortem
   council-product-strategy
   council-research
   council-review

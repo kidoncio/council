@@ -48,7 +48,7 @@ Five advisors. Five lenses. All permanently disagreeing with at least one of the
 | **LOVELACE**  | Product Strategist  | _"Are we solving the right problem?"_                                 |
 | **TORVALDS**  | Security Engineer   | _"What's the worst thing a malicious user can do with this?"_         |
 | **DIJKSTRA**  | Systems Thinker     | _"What does this look like at 100x load in 3 years?"_                 |
-| **HAMMURABI** | Code Quality Judge  | _"Would a new engineer understand this in 6 months with no context?"_ |
+| **CASSANDRA** | Pre-Mortem Strategist | _"What will be the first line of the post-mortem when this fails in 6 months?"_ |
 
 Each advisor has a philosophy, a blind spot, and a debate style. They produce independent reports, argue with each other, and converge on a verdict only when the argument is actually settled.
 
@@ -105,11 +105,11 @@ Convene one advisor or all five — your choice.
 | Command                      | Advisor   | What they focus on                                          |
 | ---------------------------- | --------- | ----------------------------------------------------------- |
 | ``council-review``            | All five  | Independent reports → debate → unified verdict              |
-| ``council-senior-engineer``   | TURING    | Operational complexity, blast radius, debuggability         |
+| ``council-senior-engineer``   | TURING    | Operational complexity, blast radius, maintainability, naming, test quality, convention drift |
 | ``council-security-engineer`` | TORVALDS  | Attack surface, data exposure, specific CVE classes         |
 | ``council-product-strategy``  | LOVELACE  | User outcomes, delivery speed, the right problem            |
 | ``council-architecture``      | DIJKSTRA  | Consistency guarantees, failure modes, migration paths      |
-| ``council-code-quality``      | HAMMURABI | Maintainability, cyclomatic complexity, 6-month inheritance |
+| ``council-pre-mortem``        | CASSANDRA | Failure scenarios, leading indicators, second-order effects |
 
 ---
 
@@ -161,7 +161,7 @@ Plans are written to `.council/[feature-slug]/` inside your project. Everything 
         ├── LOVELACE.md
         ├── TORVALDS.md
         ├── DIJKSTRA.md
-        └── HAMMURABI.md
+        └── CASSANDRA.md
 ```
 
 ---
