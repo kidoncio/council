@@ -103,9 +103,6 @@ Determine the output directory (`COUNCIL_DIR`) from context:
 
 Create the directory: `mkdir -p [COUNCIL_DIR]`.
 
-**Step 0.1 — HTML companion contract**
-The synthesized `SUMMARY_OF_COUNCIL.md` ships with a sibling `SUMMARY_OF_COUNCIL.html` for the user to read and share. Division of labor: the synthesis agent (Phase 3) writes only the markdown. **The orchestrator then spawns the `council-html-companion` subagent** to render `SUMMARY_OF_COUNCIL.html` — see that skill's `<invocation>` section for the contract. Per-advisor reports in `[COUNCIL_DIR]/<ADVISOR>.md` and the debate transcript `[COUNCIL_DIR]/DEBATE.md` stay markdown-only.
-
 ---
 
 ## Phase 1 — Independent Reports
@@ -211,9 +208,7 @@ The orchestrator waits for `[COUNCIL_DIR]/DEBATE.md` to be written before procee
 After `DEBATE.md` exists, spawn a single synthesis subagent. It receives:
 - The paths to all 5 advisor files and `DEBATE.md` (which it must read)
 - The markdown output path: `[COUNCIL_DIR]/../SUMMARY_OF_COUNCIL.md` (one level up from `council/`, in the feature directory)
-- The instruction: "Read all advisor reports and the debate transcript. Write the unified council summary directly to the markdown file path provided. Markdown only — do not generate HTML. Per-advisor files and DEBATE.md stay markdown-only too."
-
-The synthesis subagent writes only markdown. HTML rendering happens separately in the orchestrator (see "HTML companion render" below this section).
+- The instruction: "Read all advisor reports and the debate transcript. Write the unified council summary directly to the markdown file path provided. Markdown only. Per-advisor files and DEBATE.md stay markdown-only too."
 
 The synthesis agent **writes directly** to `[FEATURE_DIR]/SUMMARY_OF_COUNCIL.md`. The reader is a busy developer or PM. They should know in 60 seconds: *can we ship, what must change first, what's still open.* No paragraphs. No restating advisor reports. Lead with the verdict.
 
@@ -278,19 +273,6 @@ The synthesis agent **writes directly** to `[FEATURE_DIR]/SUMMARY_OF_COUNCIL.md`
 - Use checkboxes `[ ]` for blockers — they're action items, not analysis.
 - Keep it under one screen on a laptop. If it's longer, the synthesis is leaking detail that belongs in the per-advisor files.
 
-**HTML companion render (orchestrator step, after the synthesis subagent finishes):**
-
-After `SUMMARY_OF_COUNCIL.md` exists, the orchestrator spawns the `council-html-companion` subagent to render `SUMMARY_OF_COUNCIL.html`. Inputs:
-
-- `markdown_path` = `[FEATURE_DIR]/SUMMARY_OF_COUNCIL.md` (absolute)
-- `html_path` = `[FEATURE_DIR]/SUMMARY_OF_COUNCIL.html` (absolute)
-- `artifact_type` = `SUMMARY_OF_COUNCIL`
-- `feature_slug` = the feature slug (derive from FEATURE_DIR)
-- `status_label` = the verdict string from the markdown — one of `Verdict: proceed`, `Verdict: proceed with adjustments`, `Verdict: revise before proceeding` (the subagent's glossary maps the verdict heading to this label)
-- `companion_index` = comma-separated list of other `*.html` files already present in `[FEATURE_DIR]` (typically `BRAINSTORMING.html`, `RESEARCH.html`, `TECHNICAL_SKETCH.html`, `UX.html`, `PLAN.html` if any exist)
-
-The subagent's rendering rules (verdict-as-badge, per-advisor vote table, blockers as `.callout.danger`, risks as `.callout.warn`, accepted debt as plain `.callout`, open questions as `.callout`, advisor-file links in footer) live in `council-html-companion`'s `<rendering_rules>` — the orchestrator does not need to repeat them here. Wait for the subagent's one-line confirmation before continuing to Phase 4.
-
 ---
 
 ## Phase 4 — Present to caller
@@ -307,13 +289,12 @@ Then list all files written:
 ```
 ## Council Review Complete
 
-Individual advisor reports in [COUNCIL_DIR] (markdown only):
+Individual advisor reports in [COUNCIL_DIR]:
   - TURING.md, LOVELACE.md, TORVALDS.md, DIJKSTRA.md, CASSANDRA.md
   - DEBATE.md
 
-Summary (review surface for the user):
-  - SUMMARY_OF_COUNCIL.md    — source of truth
-  - SUMMARY_OF_COUNCIL.html  — open in browser to review or share
+Summary:
+  - SUMMARY_OF_COUNCIL.md
 ```
 
 </process>
@@ -329,7 +310,7 @@ Summary (review surface for the user):
 - **Every advisor applies the shared architectural lens, not just one advisor.** Duplication and architectural drift are first-class concerns for the whole council. An advisor who skips this check has not done the job.
 - Concessions in debate must be earned — state the exact argument that changed the position.
 - SUMMARY_OF_COUNCIL.md must reflect the actual outcome of the debate, not a pre-decided synthesis.
-- **HTML companion:** Only `SUMMARY_OF_COUNCIL.md` gets a sibling `SUMMARY_OF_COUNCIL.html`. The synthesis subagent writes only the markdown; the orchestrator spawns the `council-html-companion` subagent afterward to render the HTML. Per-advisor reports and `DEBATE.md` stay markdown-only.
+- **No HTML companions.** All review artifacts (per-advisor reports, `DEBATE.md`, `SUMMARY_OF_COUNCIL.md`) stay markdown-only.
 - **Every subagent writes its own output file directly.** The orchestrator does not write any council content — it only coordinates, waits for files to exist, and presents the final summary to the user.
 - **Output tone — terse technical prose.** Drop articles (a/an/the), filler (just/really/basically), hedging (likely/might/probably). Fragments OK. Pattern: `[thing] [action] [reason].` No narrative wind-up. Every sentence must carry information or be cut.
 - Phase 1 reports: 80-150 words each. Debate: one sentence per challenge/response — no paraphrasing the other advisor before responding. Summary: bullets, no prose paragraphs.

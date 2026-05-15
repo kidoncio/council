@@ -167,23 +167,6 @@ Use the user's exact words where possible. "Users need to see their dog's histor
 
 ---
 
-## Step 5.5 — Generate `BRAINSTORMING.html` companion via subagent
-
-After `BRAINSTORMING.md` is written, spawn the **`council-html-companion`** subagent to render a sibling `BRAINSTORMING.html` at `[FEATURE_DIR]/BRAINSTORMING.html`. Markdown stays source of truth (downstream skills read MD); HTML is the review surface for humans. Do NOT inline the HTML rules here — the subagent owns the full render.
-
-Spawn it via `Agent()` following the contract in `council-html-companion`'s `<invocation>` section. Inputs:
-
-- `markdown_path` = `[FEATURE_DIR]/BRAINSTORMING.md` (absolute)
-- `html_path` = `[FEATURE_DIR]/BRAINSTORMING.html` (absolute)
-- `artifact_type` = `BRAINSTORMING`
-- `feature_slug` = `[FEATURE_SLUG]`
-- `status_label` = `Ready for planning` (or `Draft — sections pending` if the session was cut short and any section is unapproved)
-- `companion_index` = comma-separated list of other `*.html` files already present in `[FEATURE_DIR]` (likely empty at this point — brainstorming is the first artifact)
-
-Wait for the subagent's one-line confirmation. If the user revises `BRAINSTORMING.md` later (Step 7), re-spawn the same subagent with the same inputs — never edit the HTML directly.
-
----
-
 ## Step 6 — Spec self-review (inline)
 
 Re-read the written file with fresh eyes and fix inline (no separate review file):
@@ -193,7 +176,7 @@ Re-read the written file with fresh eyes and fix inline (no separate review file
 3. **Ambiguity check:** could any requirement be read two valid ways? Pick one and make it explicit.
 4. **Scope check:** is this focused enough for a single plan? If it spans multiple independent subsystems, flag in **Open Questions** and recommend decomposition.
 
-Apply fixes directly to `BRAINSTORMING.md`. If any fix changed content, re-spawn the `council-html-companion` subagent (same inputs as Step 5.5) so the HTML matches. No need to re-review the spec itself — fix and move on.
+Apply fixes directly to `BRAINSTORMING.md`. No need to re-review the spec itself — fix and move on.
 
 ---
 
@@ -203,12 +186,11 @@ Show:
 
 > "Spec written.
 >
-> Markdown (source of truth): `[FEATURE_DIR]/BRAINSTORMING.md`
-> HTML for review (open in browser): `[FEATURE_DIR]/BRAINSTORMING.html`
+> Markdown: `[FEATURE_DIR]/BRAINSTORMING.md`
 >
-> Open the HTML and let me know if you want changes before we hand off to planning or research."
+> Open it and let me know if you want changes before we hand off to planning or research."
 
-Wait for the user's response. If they request changes, edit `BRAINSTORMING.md`, re-run Step 6, then re-spawn the `council-html-companion` subagent. Only proceed on explicit approval ("looks good", "ship it", "approved", etc.).
+Wait for the user's response. If they request changes, edit `BRAINSTORMING.md` and re-run Step 6. Only proceed on explicit approval ("looks good", "ship it", "approved", etc.).
 
 ---
 
@@ -221,7 +203,6 @@ BRAINSTORMING approved.
 
 Saved to: [FEATURE_DIR]/
   - BRAINSTORMING.md   (source of truth — downstream skills read this)
-  - BRAINSTORMING.html (open in browser to review or share)
 
 Next step — your call:
   → Ready to plan implementation slices?     /council-plan [FEATURE_SLUG]
@@ -240,8 +221,7 @@ Do not invoke either skill yourself — let the user choose.
 - Per-section approval is non-negotiable. Do not write `BRAINSTORMING.md` until every design section has been approved.
 - Use the user's exact words in `BRAINSTORMING.md`. Paraphrasing into engineering language hides intent.
 - Never invoke `/council-plan` or `/council-research` directly — only suggest. The user chooses.
-- Always write `BRAINSTORMING.md` before the session ends, even if the user cuts it short. Mark unapproved sections with "[NOT APPROVED]". Then spawn the `council-html-companion` subagent (Step 5.5) to render `BRAINSTORMING.html`. If the session was cut short, still spawn the subagent with `status_label="Draft — sections pending"` so the state is honest.
-- Markdown is source of truth, HTML is the review surface. Never let them drift — every edit to the MD must be followed by re-spawning the `council-html-companion` subagent.
+- Always write `BRAINSTORMING.md` before the session ends, even if the user cuts it short. Mark unapproved sections with "[NOT APPROVED]".
 - **Output tone — terse technical prose.** Drop articles, filler, hedging. Fragments OK. Bullets over paragraphs. Every sentence must carry information or be cut.
 - Use English (en-US) for all generated files. Respond to the user in their language.
 </instructions>

@@ -38,9 +38,6 @@ If `[FEATURE_DIR]/RESEARCH.md` already exists, tell the user:
 
 > "I found existing research for this feature. I'll run new agents and merge the findings into RESEARCH.md."
 
-**Step 0.1 — HTML companion contract**
-The synthesized `RESEARCH.md` ships with a sibling `RESEARCH.html` for the user to read and share. Division of labor: the synthesis agent (Step 4) writes only the markdown. **The orchestrator then spawns the `council-html-companion` subagent** to render `RESEARCH.html` — see that skill's `<invocation>` section for the contract. Per-agent research files in `research/<slug>.md` stay markdown-only.
-
 ---
 
 ## Step 1 — Council interviews the user
@@ -130,7 +127,7 @@ Spawn all confirmed agents simultaneously. Each agent:
 [Named sources, products, documentation, or incident reports consulted. For codebase-survey: file paths with line numbers.]
 ```
 
-Per-agent files (`research/<slug>.md`) stay markdown-only — no HTML companion. The synthesis step (Step 4) writes the single `RESEARCH.html` that the user actually reviews.
+All research artifacts (per-agent files and synthesized `RESEARCH.md`) stay markdown-only.
 
 ### Special instructions for `codebase-survey`
 
@@ -177,11 +174,11 @@ Each agent is responsible for writing its own file. The orchestrator does not wr
 
 ---
 
-## Step 4 — Synthesize into RESEARCH.md (and RESEARCH.html)
+## Step 4 — Synthesize into RESEARCH.md
 
 After all agents complete and their files exist in `[FEATURE_DIR]/research/`, spawn a single synthesis agent. It receives: the paths to all `[FEATURE_DIR]/research/*.md` files (which it must read), the feature description, and project context (PROJECT.md, CLAUDE.md, AGENTS.md — whichever exist).
 
-The synthesis agent writes only the markdown at `[FEATURE_DIR]/RESEARCH.md`. It does NOT write HTML — that's the orchestrator's job in the next step.
+The synthesis agent writes the markdown at `[FEATURE_DIR]/RESEARCH.md`.
 
 ```markdown
 # Research: [Feature Name]
@@ -233,17 +230,6 @@ The synthesis agent writes only the markdown at `[FEATURE_DIR]/RESEARCH.md`. It 
 [Cross-cutting insights that emerge from reading all agents together — things no single agent would have seen alone. Tie market/UX patterns back to the codebase reality.]
 ```
 
-After the synthesis agent finishes and `RESEARCH.md` exists, the orchestrator spawns the `council-html-companion` subagent to render `RESEARCH.html`. Inputs:
-
-- `markdown_path` = `[FEATURE_DIR]/RESEARCH.md` (absolute)
-- `html_path` = `[FEATURE_DIR]/RESEARCH.html` (absolute)
-- `artifact_type` = `RESEARCH`
-- `feature_slug` = `[FEATURE_SLUG]`
-- `status_label` = `Research — review`
-- `companion_index` = comma-separated list of other `*.html` files already present in `[FEATURE_DIR]` (e.g. `BRAINSTORMING.html` if a prior brainstorm produced one)
-
-Wait for the subagent's one-line confirmation before continuing.
-
 ---
 
 ## Step 5 — Present and validate
@@ -257,7 +243,7 @@ Ask:
 
 > "The council completed research with [N] agents. Is there any direction that doesn't make sense for your context, or something important that was missed that would be worth spawning an additional agent for?"
 
-If the user requests additional research, spawn the new agent(s) — each writes its own file to `research/[agent-slug].md` — then spawn a new synthesis agent to update `RESEARCH.md`, and finally re-spawn the `council-html-companion` subagent with the same inputs as Step 4 to regenerate `RESEARCH.html`. The two must stay in sync.
+If the user requests additional research, spawn the new agent(s) — each writes its own file to `research/[agent-slug].md` — then spawn a new synthesis agent to update `RESEARCH.md`.
 
 ---
 
@@ -269,10 +255,9 @@ Show the user:
 ## Research Complete: [Feature Name]
 
 Files created in [FEATURE_DIR]:
-  - RESEARCH.md    — synthesized findings from [N] research agents (source of truth)
-  - RESEARCH.html  — open in browser to review or share
+  - RESEARCH.md    — synthesized findings from [N] research agents
 
-Individual agent reports in [FEATURE_DIR]/research/ (markdown only):
+Individual agent reports in [FEATURE_DIR]/research/:
   - [agent-slug].md × [N]
 
 → Ready to plan? The council will use this research as its starting point:
@@ -288,8 +273,8 @@ Individual agent reports in [FEATURE_DIR]/research/ (markdown only):
 - Each agent receives only its own objective — not the full agent list. Agents do not know what the others are researching.
 - **Each research agent writes its own file.** The orchestrator does not write individual research files. Only the synthesis agent writes RESEARCH.md.
 - Files are always written to `.council/[FEATURE_SLUG]/` relative to the project root (current working directory).
-- If `RESEARCH.md` already exists, the synthesis agent merges new findings rather than overwriting. Preserve prior insights. Re-spawn the `council-html-companion` subagent to regenerate `RESEARCH.html` from the updated markdown.
-- **HTML companion:** Only the synthesized `RESEARCH.md` gets a sibling `RESEARCH.html`, rendered by the orchestrator spawning the `council-html-companion` subagent (not by the synthesis agent itself). Per-agent `research/<slug>.md` files stay markdown-only.
+- If `RESEARCH.md` already exists, the synthesis agent merges new findings rather than overwriting. Preserve prior insights.
+- **No HTML companions.** All research artifacts (per-agent files and synthesized `RESEARCH.md`) stay markdown-only.
 - `/council-plan` will detect and use RESEARCH.md automatically — the planning phase will skip its own research step.
 - **Output tone — terse technical prose.** Drop articles, filler, hedging. Fragments OK. Bullets over paragraphs. Named facts, products, incidents — no generic observations. Every sentence must carry information or be cut.
 - Use English (en-US) for all instructions and generated files. Respond to the user in their language.
