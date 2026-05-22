@@ -86,7 +86,7 @@ HTML companions are emitted **only** for the six top-level synthesized review ar
 | `PLAN.md` (and `PLAN-01.md`, etc.) | `PLAN.html` (and `PLAN-01.html`, etc.) |
 | `SUMMARY_OF_COUNCIL.md` | `SUMMARY_OF_COUNCIL.html` |
 
-**No HTML for:** per-agent research files (`research/<agent-slug>.md`), per-advisor reports (`council/<ADVISOR>.md`), debate transcripts (`council/DEBATE.md`), execution-state files (`ROADMAP.md`), or project-level files (`MEMORY.md`, `PROJECT.md`, `CLAUDE.md`, `AGENTS.md`).
+**No HTML for:** per-agent research files (`research/<agent-slug>.md`), per-advisor reports (`council/<ADVISOR>.md`), execution-state files (`ROADMAP.md`), or project-level files (`MEMORY.md`, `PROJECT.md`, `CLAUDE.md`, `AGENTS.md`).
 
 </scope>
 
@@ -360,7 +360,7 @@ Render the verdict as a top-of-section badge AND as the doc-level TL;DR sentence
 - REVISE BEFORE PROCEEDING → `.badge-danger` "Verdict: revise before proceeding"
 
 ### Per-advisor vote table (SUMMARY_OF_COUNCIL)
-Render the "How each advisor voted" table with the Verdict column color-coded via `.badge-ok` / `.badge-warn` / `.badge-danger`. The "Held in debate?" column uses `.badge-ok` ("Held") or `.badge-status` ("Conceded"). Footer of the table links to the per-advisor markdown reports under `council/<ADVISOR>.md` (relative links — those files are markdown-only, no HTML companion).
+Render the "How each advisor voted" table with the Verdict column color-coded via `.badge-ok` / `.badge-warn` / `.badge-danger`. The "AURELIUS weighted their input as..." column uses `.badge-ok` ("Primary"), `.badge-status` ("Secondary"), or `.badge-danger` ("Overruled") — when "Overruled", keep AURELIUS's one-line reason next to the badge. Footer of the table links to the per-advisor markdown reports under `council/<ADVISOR>.md` (relative links — those files are markdown-only, no HTML companion).
 
 ### Diagrams (Mermaid in markdown → SVG in HTML)
 SVG > ASCII > unicode-colored boxes. For every `mermaid` block in the source markdown, render an **inline SVG diagram** in the HTML — do not embed mermaid.js, do not link to mermaid.ink. Hand-author the SVG from the mermaid source:
@@ -424,6 +424,6 @@ When the markdown changes after user feedback, the caller re-spawns this subagen
 - DON'T regenerate HTML before the markdown is approved. The HTML reflects approved state, not in-progress drafts.
 - DON'T add company branding or logos unless the user explicitly attached them — keep the design neutral.
 - DON'T use HTML where markdown is the input (e.g., a council-execute agent reading PLAN.md). Agents read markdown; HTML is for humans only.
-- DON'T emit HTML for per-agent intermediate reports (`research/<slug>.md`, `council/<ADVISOR>.md`, `council/DEBATE.md`). Only the six synthesized files (BRAINSTORMING, RESEARCH, TECHNICAL_SKETCH, UX, PLAN, SUMMARY_OF_COUNCIL) get HTML companions.
+- DON'T emit HTML for per-agent intermediate reports (`research/<slug>.md`, `council/<ADVISOR>.md`). Only the six synthesized files (BRAINSTORMING, RESEARCH, TECHNICAL_SKETCH, UX, PLAN, SUMMARY_OF_COUNCIL) get HTML companions.
 
 </anti_patterns>

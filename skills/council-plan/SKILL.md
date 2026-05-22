@@ -12,13 +12,17 @@ The output is a set of files in `.council/[FEATURE_SLUG]/` that serve as the aut
 </objective>
 
 <advisors_reference>
-The council is composed of 5 permanent advisors used throughout this process:
+The council is composed of 5 permanent advisors plus 1 decider used throughout this process:
 
+**Advisors (parallel reports):**
 - **TURING** — Pragmatist Engineer. Focuses on operational simplicity, blast radius, ghost code, naming, abstractions, test quality, and convention drift.
 - **LOVELACE** — Product Strategist. Focuses on user outcomes and delivery speed.
 - **TORVALDS** — Security Engineer. Focuses on attack surfaces and data exposure.
 - **DIJKSTRA** — Systems Thinker. Focuses on consistency, scalability, and data model evolution.
 - **CASSANDRA** — Pre-Mortem Strategist. Narrates how the plan will fail in 6 months and which leading indicator gets ignored.
+
+**Decider (single synthesis):**
+- **AURELIUS** — Chief of Staff. Reads all 5 advisor reports and signs the executive verdict. Owns the Blockers list, may promote/demote findings, and names which advisor's lens won when they conflict. Does not invent new findings — judgment only over what the 5 produced.
 </advisors_reference>
 
 <terminology>
@@ -29,7 +33,7 @@ The council review classifies findings into four buckets. Every step that refere
 - **Accepted Debt** — known limitation the team consciously chooses to defer. Logged in ROADMAP.md under "Registered Technical Debt" with a revisit condition.
 - **Decision That Belongs to the Team** — open question the council cannot resolve (product/business judgment required). Surfaced to the user at handoff (Step 5.4) and logged in ROADMAP.md.
 
-Every council artifact (per-advisor reports, DEBATE.md, SUMMARY_OF_COUNCIL.md) must use these exact labels — no synonyms.
+Every council artifact (per-advisor reports, SUMMARY_OF_COUNCIL.md) must use these exact labels — no synonyms.
 </terminology>
 
 <orchestrator_writes>
@@ -38,7 +42,7 @@ The orchestrator (the model running this skill) is allowed to directly write or 
 - `ROADMAP.md` (creation initially by planning agent, but ongoing edits — status, debt log, open decisions — are orchestrator's job).
 - Targeted edits to `PLAN.md`, `TECHNICAL_SKETCH.md`, `UX.md` **after Phase 5** when applying council Blockers (Step 5.2) or when incorporating user feedback at the "Present and validate" gates. Every such edit must be small, surgical, and reported to the user.
 
-The orchestrator must **not** author from scratch: RESEARCH.md, per-research-agent files, per-advisor reports, DEBATE.md, SUMMARY_OF_COUNCIL.md. Those are owned by their producing agents.
+The orchestrator must **not** author from scratch: RESEARCH.md, per-research-agent files, per-advisor reports, SUMMARY_OF_COUNCIL.md. Those are owned by their producing agents (advisors + AURELIUS decider).
 
 When in doubt: re-spawn the original agent with the new context rather than editing manually.
 </orchestrator_writes>
@@ -347,7 +351,7 @@ Show the user the task list, the validation summary from Step 4.2, and ask:
 
 ## Phase 5 — Council Review
 
-**Goal:** Run the plan through the full council review to surface issues before implementation begins. The council debates the plan against the full context — not against PLAN.md in isolation.
+**Goal:** Run the plan through the full council review to surface issues before implementation begins. Five advisors review the plan in parallel; AURELIUS reads all 5 reports and signs an executive verdict. No simulated debate — the divergent perspectives already live in the 5 reports, and AURELIUS owns the priority calls between them.
 
 **Step 5.1 — Invoke council review with full context**
 Invoke the `council-review` process. Pass these inputs (every advisor must receive all of them):
@@ -362,21 +366,21 @@ Invoke the `council-review` process. Pass these inputs (every advisor must recei
 - The terminology block (`<terminology>` above) — advisors must classify findings as Blocker / Manageable Risk / Accepted Debt / Decision That Belongs to the Team using exactly those labels.
 
 `council-review` produces:
-- `[FEATURE_DIR]/council/[ADVISOR].md` per advisor (report + Position After Debate)
-- `[FEATURE_DIR]/council/DEBATE.md`
-- `[FEATURE_DIR]/SUMMARY_OF_COUNCIL.md`
+- `[FEATURE_DIR]/council/[ADVISOR].md` per advisor (report with Findings classification)
+- `[FEATURE_DIR]/SUMMARY_OF_COUNCIL.md` (signed AURELIUS — the decider)
 
 Wait for all files to exist.
 
-**Step 5.2 — Read DEBATE.md and verify the debate actually happened**
-Before trusting the synthesis, the orchestrator reads DEBATE.md and SUMMARY_OF_COUNCIL.md and verifies:
+**Step 5.2 — Verify AURELIUS produced an accountable decision**
+Before applying findings, the orchestrator reads SUMMARY_OF_COUNCIL.md and the 5 advisor reports and verifies:
 
-1. **Each advisor took at least one challenged position.** A debate where all 5 advisors said "PROCEED" with no challenge is suspect — re-invoke `council-review` with an explicit instruction to surface the strongest counter-arguments to the most consensus-friendly slices.
-2. **Concessions are earned.** If an advisor changed position, DEBATE.md must show which argument moved them. Bare "OK, agreed" is invalid — re-invoke.
-3. **No irreconcilable disagreement is silently dropped.** If two advisors held opposing positions at the end of debate, SUMMARY_OF_COUNCIL.md must list this as a "Decision That Belongs to the Team", not paper over it.
+1. **Verdict is signed by AURELIUS** and the "Why this verdict" section is non-empty with 2-4 trade-off bullets naming advisors. If missing or fully generic, re-invoke `council-review` requiring AURELIUS to name the specific advisors weighted.
+2. **Every Blocker, Risk, Accepted Debt, and Open Question cites which advisor(s) raised it.** Findings without attribution mean AURELIUS invented them — re-invoke.
+3. **When AURELIUS overruled an advisor** (promoted a risk to blocker, demoted a blocker, or marked an advisor "Overruled" in the vote table), the one-line reason is visible inline. If hidden or absent, re-invoke.
 4. **Findings use the canonical labels** from `<terminology>`. If the synthesis used synonyms ("must-fix", "warning", "future work"), re-invoke with the label requirement reinforced.
+5. **No irreconcilable disagreement is silently dropped.** If two advisors held opposing classifications on the same finding, SUMMARY_OF_COUNCIL.md must either show AURELIUS's call with the reason or list it under "Open questions for you" — never paper over it.
 
-Report verification result to the user in one paragraph: "Council debated, [N] blockers / [M] risks / [K] accepted debt / [J] open decisions. [One line on quality of debate]."
+Report verification result to the user in one paragraph: "Council reviewed, AURELIUS verdict: [verdict]. [N] blockers / [M] risks / [K] accepted debt / [J] open decisions. [One line on whether AURELIUS overruled any advisor and why.]"
 
 **Step 5.3 — Apply findings and re-validate**
 The orchestrator now applies the council's findings. Ownership is explicit:
@@ -411,9 +415,10 @@ Show this exact structure — the user must see the council's voice, not just fi
 - [Question 2]
 - [or: none]
 
-**Irreconcilable disagreements surfaced in debate:**
-- [TORVALDS vs LOVELACE on X — see council/DEBATE.md:line]
-- [or: none — full convergence]
+**AURELIUS overrules in this review:**
+- [Advisor X's blocker demoted to risk — reason]
+- [Advisor Y's risk promoted to blocker — reason]
+- [or: none — AURELIUS aligned with advisor classifications]
 
 **Registered technical debt:**
 - [Item 1 with revisit condition]
@@ -424,7 +429,7 @@ Files in [FEATURE_DIR]:
   - PLAN.md (v[N]) — also rendered as PLAN.html for review
   - ROADMAP.md — progress tracker, Registered Technical Debt, Open Decisions
   - SUMMARY_OF_COUNCIL.md — council review summary
-  - council/TURING.md, LOVELACE.md, TORVALDS.md, DIJKSTRA.md, CASSANDRA.md, DEBATE.md
+  - council/TURING.md, LOVELACE.md, TORVALDS.md, DIJKSTRA.md, CASSANDRA.md
 
 **If verdict is REVISE BEFORE PROCEEDING:** do not run `/council-execute`. Resolve the listed blockers (re-run /council-plan or edit PLAN.md manually with re-validation) before execution.
 
@@ -458,7 +463,7 @@ If a re-spawn is required (validation failed, user feedback large), the new brie
 - Files are always written to `.council/[FEATURE_SLUG]/` relative to the project root (current working directory).
 - **Orchestrator write boundary:** see `<orchestrator_writes>`. The orchestrator does not author artifacts from scratch — it spawns subagents and edits surgically for council Blockers + user feedback.
 - **Cross-artifact validation is non-negotiable.** Steps 2.3, 3.3, 4.2, 5.3 are the only mechanism that keeps the artifacts coherent. Skipping them defeats the multi-phase design.
-- **Council debate must be verified, not trusted.** Step 5.2 is mandatory — a debate where everyone agreed is suspect, and the orchestrator must check, not assume.
+- **AURELIUS's decision must be verified, not trusted.** Step 5.2 is mandatory — every blocker/risk must cite an advisor, every overrule must name its reason inline. Synthesis without attribution means AURELIUS invented findings.
 - **No silent slips into execution.** If council verdict is `REVISE BEFORE PROCEEDING`, the skill stops at Step 5.4 with explicit instructions to the user. `/council-execute` is not the default next action.
 - **Versioning:** every artifact (TECHNICAL_SKETCH, UX, PLAN) carries a Version + Last revised + Revision reason. Every edit bumps Version. Audit trail is in the file itself.
 - **DRY and YAGNI are first-class constraints.** Reuse Map + "New things created" (sketch) + `Reuses` field (plan) are cross-checked by the orchestrator in Step 4.2. Without that cross-check, the rules are aspiration only.
