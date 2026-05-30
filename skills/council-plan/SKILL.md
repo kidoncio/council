@@ -88,9 +88,6 @@ If any artifact exists, ask **one** explicit question:
 
 Wait for the answer. The "skip phase if file exists" rule (Phase 1.1, 2.1) only kicks in when the user explicitly chose "reuse" for that artifact. Otherwise the phase runs and overwrites.
 
-**Step 0.3 — HTML companion contract**
-Only `PLAN.md` (or `PLAN-01.md`, `PLAN-02.md`, etc.) ships with sibling `.html` companions. The planning agent writes only the markdown. The orchestrator then spawns the `council-html-companion` subagent to render the HTML — see that skill's `<invocation>` section. All other artifacts stay markdown-only.
-
 ---
 
 ## Phase 1 — Research
@@ -325,27 +322,14 @@ This is the most important validation gate in the whole skill. The orchestrator 
 
 For each failed check, re-spawn the planning subagent with a brief explicitly citing the failure (not a vague "please fix"). Do not edit PLAN.md manually for these issues.
 
-**Step 4.3 — Render PLAN HTML**
-After validation in Step 4.2 passes, the orchestrator spawns the `council-html-companion` subagent **once per PLAN file** to render each sibling `.html`. Inputs (substitute filename per call):
-
-- `markdown_path` = `[FEATURE_DIR]/PLAN.md` (or `PLAN-NN.md`) (absolute)
-- `html_path` = `[FEATURE_DIR]/PLAN.html` (or `PLAN-NN.html`) (absolute)
-- `artifact_type` = `PLAN`
-- `feature_slug` = `[FEATURE_SLUG]`
-- `status_label` = `Plan — review`
-- `companion_index` = comma-separated list of other `*.html` files already present in `[FEATURE_DIR]` (typically only sibling `PLAN-*.html`)
-
-If split into PLAN-01, PLAN-02, etc., spawn sequentially so each call sees prior siblings.
-
-**Step 4.4 — Present and validate**
+**Step 4.3 — Present and validate**
 Show the user the task list, the validation summary from Step 4.2, and ask:
 
 > "Does the plan reflect what you want to build? Are there missing tasks, tasks out of order, or tasks that are clearly out of scope for this delivery?
 >
-> Markdown: `[FEATURE_DIR]/PLAN.md`
-> HTML for review: `[FEATURE_DIR]/PLAN.html`"
+> Markdown: `[FEATURE_DIR]/PLAN.md`"
 
-**Incorporating feedback:** Same protocol as Steps 2.4/3.4 — small edits direct (bump version), large changes re-spawn planning subagent. After any edit, re-run Step 4.2 validation and re-spawn the `council-html-companion` subagent for each affected PLAN file.
+**Incorporating feedback:** Same protocol as Steps 2.4/3.4 — small edits direct (bump version), large changes re-spawn planning subagent. After any edit, re-run Step 4.2 validation.
 
 ---
 
@@ -392,8 +376,6 @@ The orchestrator now applies the council's findings. Ownership is explicit:
 
 **Re-validation gate (MANDATORY):** after applying changes, re-run Step 4.2's cross-artifact checks against the modified PLAN/SKETCH/UX. If new violations were introduced by the council adjustments, fix them in the same loop before exiting Phase 5.
 
-**Re-render PLAN HTML** for every PLAN file that was modified.
-
 Update ROADMAP.md status to: `🟡 Awaiting execution — plan reviewed by council (v[N])`.
 
 **Step 5.4 — Final handoff to user**
@@ -426,7 +408,7 @@ Show this exact structure — the user must see the council's voice, not just fi
 
 Files in [FEATURE_DIR]:
   - RESEARCH.md, TECHNICAL_SKETCH.md (v[N]), UX.md (v[N])
-  - PLAN.md (v[N]) — also rendered as PLAN.html for review
+  - PLAN.md (v[N])
   - ROADMAP.md — progress tracker, Registered Technical Debt, Open Decisions
   - SUMMARY_OF_COUNCIL.md — council review summary
   - council/TURING.md, LOVELACE.md, TORVALDS.md, DIJKSTRA.md, CASSANDRA.md
@@ -448,7 +430,7 @@ Every subagent spawn in this skill (technical sketch agent, UX mapping agent, pl
 2. **Feature description** — the original $ARGUMENTS or current `FEATURE_SLUG` + one-paragraph summary.
 3. **Inputs** — paths AND full content of every upstream artifact the agent depends on (not just paths — the subagent has no working dir context and may not be able to read efficiently).
 4. **Output contract** — exact file path to write, exact structure (template copied into the brief), length target.
-5. **Boundaries** — what the agent must NOT do (e.g., "do not modify TECHNICAL_SKETCH.md", "do not write HTML", "do not invent reuse references").
+5. **Boundaries** — what the agent must NOT do (e.g., "do not modify TECHNICAL_SKETCH.md", "do not invent reuse references").
 6. **Tone rules** — terse technical prose, fragments OK, bullets over paragraphs.
 7. **What to return** — a structured one-message summary (files written, validation it performed on itself, anything unexpected). The subagent does not echo back the whole markdown; just the summary.
 
@@ -457,7 +439,7 @@ If a re-spawn is required (validation failed, user feedback large), the new brie
 </subagent_brief_contract>
 
 <instructions>
-- The council always asks questions before acting. No phase starts without user input at the gates (0.2, 3.1, 2.4, 3.4, 4.4, 5.4).
+- The council always asks questions before acting. No phase starts without user input at the gates (0.2, 3.1, 2.4, 3.4, 4.3, 5.4).
 - Questions are asked in a single message per phase — not one at a time.
 - The user's answers must visibly influence the output. If they don't, the agent is not listening.
 - Files are always written to `.council/[FEATURE_SLUG]/` relative to the project root (current working directory).
@@ -467,7 +449,6 @@ If a re-spawn is required (validation failed, user feedback large), the new brie
 - **No silent slips into execution.** If council verdict is `REVISE BEFORE PROCEEDING`, the skill stops at Step 5.4 with explicit instructions to the user. `/council-execute` is not the default next action.
 - **Versioning:** every artifact (TECHNICAL_SKETCH, UX, PLAN) carries a Version + Last revised + Revision reason. Every edit bumps Version. Audit trail is in the file itself.
 - **DRY and YAGNI are first-class constraints.** Reuse Map + "New things created" (sketch) + `Reuses` field (plan) are cross-checked by the orchestrator in Step 4.2. Without that cross-check, the rules are aspiration only.
-- **HTML companions:** Only PLAN files get sibling `.html`. All other artifacts stay markdown-only. The orchestrator renders via `council-html-companion`.
 - **Output tone — terse technical prose.** Drop articles, filler, hedging. Fragments OK. Bullets over paragraphs.
 - Use English (en-US) for all generated files. Respond to the user in their language.
 </instructions>

@@ -11,7 +11,6 @@ SKILLS=(
   council-brainstorming
   council-dispatching-parallel-agents
   council-execute
-  council-html-companion
   council-init
   council-plan
   council-pre-mortem

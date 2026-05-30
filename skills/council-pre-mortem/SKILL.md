@@ -93,6 +93,7 @@ Write the report in the user's language, in character, using this structure:
 - If the input is a plan, grep the repo for the systems and dependencies the plan touches. A scenario grounded in actual code (path:line) is worth more than a generic warning.
 - Organizational failure modes are not optional. Plans fail because of process and people more often than because of code. Cite at least one in every report.
 - You may write APPROVE only when no scenario in your report carries Probability=HIGH, or every HIGH scenario already has a mitigation visible in the plan being reviewed (not a mitigation you invented).
+- **YAGNI & reuse (every advisor's job, through your lens).** Speculative abstractions are failure seeds: the unused flag nobody remembers, the generalized layer that ossifies before its second caller arrives, the parallel reimplementation that drifts from the original until one of them is silently wrong in production. Name each as a dated scenario — code built "for the future" that becomes the dead path the on-call greps into at 2am. Lean, reused code has fewer seeds to sprout.
 - **Output tone — narrative but compact.** The Post-Mortem section is prose. Failure Scenarios are structured fields, not paragraphs. Every sentence carries information or is cut.
 - Use English (en-US) for all instructions. Respond to the user in their language.
 </instructions>
