@@ -6,6 +6,8 @@ const os = require("os");
 
 const SKILLS_DIR = path.join(__dirname, "..", "skills");
 const TARGETS = ["claude", "codex"];
+// Skills removed in past releases — cleaned up on upgrade.
+const STALE_SKILLS = ["council-architecture"];
 
 function parseTargetArg() {
   const targetArg = process.argv.find((arg) => arg.startsWith("--target="));
@@ -33,6 +35,10 @@ function install(local = false, target = "all") {
   for (const t of selectedTargets) {
     const skillRoot = getSkillRoot(t, local);
     fs.mkdirSync(skillRoot, { recursive: true });
+
+    for (const stale of STALE_SKILLS) {
+      fs.rmSync(path.join(skillRoot, stale), { recursive: true, force: true });
+    }
 
     for (const skillDirName of skillDirs) {
       const srcSkillDir = path.join(SKILLS_DIR, skillDirName);

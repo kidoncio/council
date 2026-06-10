@@ -18,7 +18,7 @@ The council is composed of 5 permanent advisors plus 1 decider used throughout t
 - **TURING** — Pragmatist Engineer. Focuses on operational simplicity, blast radius, ghost code, naming, abstractions, test quality, and convention drift.
 - **LOVELACE** — Product Strategist. Focuses on user outcomes and delivery speed.
 - **TORVALDS** — Security Engineer. Focuses on attack surfaces and data exposure.
-- **DIJKSTRA** — Systems Thinker. Focuses on consistency, scalability, and data model evolution.
+- **FOWLER** — Refactoring Expert. Focuses on code smells, technical debt, refactoring discipline, and design-pattern fit (and misuse).
 - **CASSANDRA** — Pre-Mortem Strategist. Narrates how the plan will fail in 6 months and which leading indicator gets ignored.
 
 **Decider (single synthesis):**
@@ -411,7 +411,7 @@ Files in [FEATURE_DIR]:
   - PLAN.md (v[N])
   - ROADMAP.md — progress tracker, Registered Technical Debt, Open Decisions
   - SUMMARY_OF_COUNCIL.md — council review summary
-  - council/TURING.md, LOVELACE.md, TORVALDS.md, DIJKSTRA.md, CASSANDRA.md
+  - council/TURING.md, LOVELACE.md, TORVALDS.md, FOWLER.md, CASSANDRA.md
 
 **If verdict is REVISE BEFORE PROCEEDING:** do not run `/council-execute`. Resolve the listed blockers (re-run /council-plan or edit PLAN.md manually with re-validation) before execution.
 
