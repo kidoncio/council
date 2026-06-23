@@ -74,12 +74,14 @@ Wait for response.
 
 ## Step 3 — Propose 2-3 approaches with tradeoffs
 
-Based on goals + constraints, present 2-3 distinct architectural approaches. Lead with the recommended one. For each approach include:
+Based on goals + constraints, present 2-3 distinct architectural approaches. **Lead with the simplest approach that delivers the stated goal** — the one with the fewest moving parts. Heavier alternatives are only worth presenting when they buy something the simplest one genuinely can't. For each approach include:
 
 - **Shape:** one sentence — what this approach is, architecturally.
 - **Pros:** 2-3 bullets — concrete strengths.
 - **Cons:** 2-3 bullets — concrete weaknesses and what they cost.
-- **Fits when:** one line — the condition under which this is the right call.
+- **Fits when:** one line — the condition under which this is the right call. For any approach more complex than the simplest one, state explicitly what extra complexity it adds and what concrete need justifies it. If nothing does, drop it.
+
+**Bias toward simplicity (YAGNI / no over-engineering):** the default recommendation is the leanest viable approach. Don't propose speculative abstraction, extra layers, or "future-proofing" that no stated goal requires.
 
 No code, no file paths, no module names. Architectural shape only — file/function decisions belong in `/council-plan`'s Technical Sketch phase.
 
@@ -175,6 +177,7 @@ Re-read the written file with fresh eyes and fix inline (no separate review file
 2. **Internal consistency:** does the design match the chosen approach? Do sections contradict each other?
 3. **Ambiguity check:** could any requirement be read two valid ways? Pick one and make it explicit.
 4. **Scope check:** is this focused enough for a single plan? If it spans multiple independent subsystems, flag in **Open Questions** and recommend decomposition.
+5. **Over-engineering check (YAGNI / DRY):** hunt for components, layers, abstractions, config/flags, or design states that no stated goal actually requires. Cut them, or move them to **Open Questions** as "deferred unless a concrete need appears." The spec should describe the simplest design that meets the goals.
 
 Apply fixes directly to `BRAINSTORMING.md`. No need to re-review the spec itself — fix and move on.
 
@@ -233,4 +236,5 @@ Do not invoke either skill yourself — let the user choose.
 - DON'T write task slices, file paths, or function signatures — that's `/council-plan`'s job.
 - DON'T write `BRAINSTORMING.md` after one round without sectioned approval.
 - DON'T paraphrase user goals into abstract engineering language. "Reduce churn by surfacing renewal dates" loses meaning when it becomes "implement renewal notification subsystem."
+- DON'T propose speculative architecture or "future-proofing" — extra layers, abstractions, plugin systems, generic config — when no stated goal and no second concrete use case demand it. The simplest viable approach is the default; complexity must earn its place.
 </anti_patterns>

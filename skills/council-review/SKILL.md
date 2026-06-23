@@ -6,7 +6,9 @@ allowed-tools: [Read, Write, Agent, Bash, Glob, Skill]
 ---
 
 <objective>
-Convene a council of 5 advisors, each with a radically different worldview, to review the development plan passed as argument. The process has two phases: (1) independent reports — each advisor writes their own file in parallel, (2) a single decider persona (AURELIUS) reads all 5 reports and produces SUMMARY_OF_COUNCIL.md with the executive verdict.
+Convene a council of 5 advisors, each with a radically different worldview, to review the subject passed as argument. The process has two phases: (1) independent reports — each advisor writes their own file in parallel, (2) a single decider persona (AURELIUS) reads all 5 reports and produces SUMMARY_OF_COUNCIL.md with the executive verdict.
+
+**The review subject may be a design or a plan.** When invoked by `/council-plan` Phase 4, the subject is the **design** — UX.md + TECHNICAL_SKETCH.md (+ RESEARCH.md), with **no PLAN.md yet** and therefore no task slices. When invoked standalone on a finished plan, the subject is the plan with its slices. Advisors review whatever they are given; checks that presuppose task slices apply only when a plan is present (see `<shared_architectural_lens>`).
 
 **Why no simulated debate.** All 5 advisors are the same LLM under different prompts. A debate between them is theater — the model rhetorically "concedes" or "rebuts" without divergent knowledge backing it. The information already lives in the 5 reports; what's missing is a clear decider. AURELIUS owns the decision, names which advisor was prioritized when they conflict, and signs the verdict.
 
@@ -21,7 +23,7 @@ Before issuing a verdict, each advisor must verify, using Grep and Read against 
 1. **Does the plan respect the existing architecture?** Cite the patterns, layering, naming conventions, and module structure already in the codebase. Plans that diverge silently are defects.
 2. **Does the plan introduce duplication?** For every new file/module/function/table/endpoint the plan creates, is there an existing equivalent the plan could have extended? Cite path:line for both sides.
 3. **Is there a Reuse Map / "New things created" section in TECHNICAL_SKETCH.md?** If yes, sanity-check it. If no, the plan was built without consulting the codebase — flag it.
-4. **YAGNI & leanness.** Does the plan build only what a shipped slice actually exercises? Flag speculative abstractions, config/flags/interfaces/plugin layers with a single concrete caller, "future-proofing" with no current second user, and any new asset whose `Reuses` is `None` while an equivalent concept already exists. Lean, maintainable, reusable code is the default — every new module/file/abstraction must justify its existence against extending what's already there.
+4. **YAGNI & leanness.** Does the design/plan build only what is actually exercised — a shipped slice when a plan is present, a mapped UX journey when reviewing a design? Flag speculative abstractions, config/flags/interfaces/plugin layers with a single concrete caller, "future-proofing" with no current second user, and any new asset whose `Reuses` is `None` while an equivalent concept already exists. Lean, maintainable, reusable code is the default — every new module/file/abstraction must justify its existence against extending what's already there. When two designs deliver the same journey, the simpler one wins.
 
 If an advisor finds duplication, architectural divergence, or speculative complexity, they must:
 - Name the duplication / divergence specifically (path:line of new vs. path:line of existing).
@@ -177,7 +179,7 @@ The orchestrator waits for all 5 files to be written before proceeding. Do not p
 After all 5 advisor files exist, spawn a single subagent acting as AURELIUS. It receives:
 - The full AURELIUS persona definition (from `<decider>` above)
 - The paths to all 5 advisor files (which it must read in full)
-- The original plan (PLAN.md or inline text) and TECHNICAL_SKETCH.md if available
+- The original review subject — the design artifacts (UX.md + TECHNICAL_SKETCH.md) when reviewing a design, or PLAN.md / inline text when reviewing a plan
 - The terminology block (see `<terminology>` below) — must use canonical labels
 - The output path: `[COUNCIL_DIR]/../SUMMARY_OF_COUNCIL.md` (one level up from `council/`, in the feature directory)
 - The instruction: "Read all 5 advisor reports in full. You are the single decider for this review. Produce SUMMARY_OF_COUNCIL.md as your decision, not a summary of opinions. When advisors conflict, name whose lens you prioritized for this feature and why. Promote risks to blockers and demote weak blockers when warranted — and justify each move. Do not invent new technical findings; your job is judgment over the existing 5 reports. Write directly to the file path provided."
